@@ -638,18 +638,15 @@ uvicorn.run(app, host="0.0.0.0", port=8000)
 
   <Step title="Add resource templates">
     ```python
-    @self.list_resources()
-    async def list_resources(self) -> ListResourcesResult:
-        return ListResourcesResult(
-            resources=[...],
-            resourceTemplates=[
-                ResourceTemplate(
-                    uriTemplate="weather://{city}/current",
-                    name="Current weather for any city",
-                    mimeType="application/json"
-                )
-            ]
-        )
+    @app.list_resource_templates()
+    async def list_resource_templates() -> list[ResourceTemplate]:
+        return [
+            ResourceTemplate(
+                uriTemplate="weather://{city}/current",
+                name="Current weather for any city",
+                mimeType="application/json"
+            )
+        ]
     ```
   </Step>
 </Steps>
