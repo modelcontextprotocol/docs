@@ -12,10 +12,12 @@ This page provides an overview of applications that support the Model Context Pr
 | [Claude Desktop App][Claude] | ✅         | ✅         | ✅       | ❌          | ❌     | Full support for all MCP features            |
 | [Zed][Zed]                | ❌         | ✅         | ❌       | ❌          | ❌     | Prompts appear as slash commands                  |
 | [Sourcegraph Cody][Cody]  | ✅         | ❌         | ❌       | ❌          | ❌     | Supports resources through OpenCTX                |
+| [Firebase Genkit][Genkit] | ⚠️         | ✅         | ✅       | ❌          | ❌     | Supports resource list and lookup through tools.  |
 
 [Claude]: https://claude.ai/download
 [Zed]: https://zed.dev
 [Cody]: https://sourcegraph.com/cody
+[Genkit]: https://github.com/firebase/genkit
 
 [Resources]: https://modelcontextprotocol.io/docs/concepts/resources
 [Prompts]: https://modelcontextprotocol.io/docs/concepts/prompts
@@ -52,6 +54,15 @@ The Claude desktop application provides comprehensive support for MCP, enabling 
 - Integration with Sourcegraph's code intelligence
 - Uses OpenCTX as an abstraction layer
 - Future support planned for additional MCP features
+
+### Firebase Genkit
+[Genkit](https://github.com/firebase/genkit) is Firebase's SDK for building and integrating GenAI features into applications. The [genkitx-mcp](https://github.com/firebase/genkit/tree/main/js/plugins/mcp) plugin enables consuming MCP servers as a client or creating MCP servers from Genkit tools and prompts.
+
+**Key features:**
+- Client support for tools and prompts (resources partially supported)
+- Rich discovery with support in Genkit's Dev UI playground
+- Seamless interoperability with Genkit's existing tools and prompts
+- Works across a wide variety of GenAI models from top providers
 
 ## Adding MCP support to your application
 
