@@ -755,7 +755,7 @@ uvicorn.run(app, host="0.0.0.0", port=8000)
               return mock_forecast_response
 
       class AsyncClient():
-          def __aenter__(self):
+          async def __aenter__(self):
               return self
 
           async def __aexit__(self, *exc_info):

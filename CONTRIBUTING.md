@@ -5,10 +5,9 @@ Thank you for your interest in contributing to the Model Context Protocol (MCP) 
 ## Getting Started
 
 1. Install the required tools:
-    - Node.js
-    - Git
-    - [Mintlify CLI](https://www.npmjs.com/package/mintlify): `npm i -g mintlify`
-
+   - Node.js
+   - Git
+   - [Mintlify CLI](https://www.npmjs.com/package/mintlify): `npm i -g mintlify`
 2. Fork and clone the repository
 3. Create a new branch for your changes
 4. Run `mintlify dev` to preview changes locally
