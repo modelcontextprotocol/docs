@@ -360,7 +360,7 @@ Want to give Claude Desktop more local integration capabilities? Add these serve
   </Accordion>
 </AccordionGroup>
 
-## More MCP Clients 
+## More MCP Clients
 
 While this guide demonstrates MCP using Claude Desktop as a client, several other applications support MCP integration:
 
@@ -416,6 +416,12 @@ Each host application may implement MCP features differently or support differen
        - Check file paths in your config
        - Verify database file permissions
        - Ensure SQLite is installed properly
+  </Accordion>
+
+  <Accordion title="Commonly reported solutions">
+    - Verify required packages are up to date (must meet or exceed the MCP requirements)
+    - Change the config to use absolute paths (like `C:\\Users\\YOUR_USERNAME\\test.db` or `/Users/YOUR_USERNAME/test.db`)
+    - Ensure `coreputils` is enabled (uvx requires it)
   </Accordion>
 </AccordionGroup>
 
