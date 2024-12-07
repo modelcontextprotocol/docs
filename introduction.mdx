@@ -3,7 +3,44 @@ title: Introduction
 description: 'Get started with the Model Context Protocol (MCP)'
 ---
 
-The Model Context Protocol (MCP) is an open protocol that enables seamless integration between LLM applications and external data sources and tools. Whether you're building an AI-powered IDE, enhancing a chat interface, or creating custom AI workflows, MCP provides a standardized way to connect LLMs with the context they need.
+Model Context Protocol (MCP) is an open protocol that enables seamless integration between LLM applications and external data sources and tools.
+
+## Why MCP
+
+MCP is a great choice for anyone building agents or complex integrations on top of LLMs. LLMs frequently need to integrate with data and tools, and MCP provides:
+- A growing list of pre-built integrations that your LLM can directly plug into.
+- The flexibility to switch between LLM providers and vendors
+- Best practices for securing your data within your infrastructure
+
+### General architecture
+
+At its core, MCP follows a client-server architecture where a client application can connect to multiple servers:
+
+```mermaid
+flowchart LR
+    subgraph "Your Computer"
+        Client["MCP Client\n(Claude, IDEs, Tools)"]
+        S1["MCP Server A"]
+        S2["MCP Server B"]
+        S3["MCP Server C"]
+
+        Client <-->|"MCP Protocol"| S1
+        Client <-->|"MCP Protocol"| S2
+        Client <-->|"MCP Protocol"| S3
+
+        S1 <--> R1[("Local\nResource A")]
+        S2 <--> R2[("Local\nResource B")]
+    end
+
+    subgraph "Internet"
+        S3 <-->|"Web APIs"| R3[("Remote\nResource C")]
+    end
+```
+
+- **MCP Client**: Programs like Claude Desktop, IDEs, or AI tools that want to access resources through MCP
+- **MCP Servers**: Lightweight programs that each expose specific capabilities through the standardized Model Context Protocol
+- **Local Resources**: Your computer's resources (databases, files, services) that MCP servers can securely access
+- **Remote Resources**: Resources available over the internet (e.g., through APIs) that MCP servers can connect to
 
 ## Get started with MCP 
 
@@ -15,41 +52,28 @@ Choose the path that best fits your needs:
     icon="bolt"
     href="/quickstart"
   >
-    The fastest way to see MCP in action&mdash;connect example servers to Claude Desktop
+    Build your first MCP client and server in less than 5 minutes
   </Card>
   <Card
-    title="Build your first server (Python)"
-    icon="python"
-    href="/docs/first-server/python"
+    title="Take MCP servers for a test run in Claude Desktop"
+    icon="desktop"
+    href="/tutorials/claude-desktop"
   >
-    Create a simple MCP server in Python to understand the basics
+    Give Claude Desktop the ability to query SQLite data using MCP
   </Card>
   <Card
-    title="Build your first server (TypeScript)"
-    icon="square-js"
-    href="/docs/first-server/typescript"
+    title="MCP clients"
+    icon="plug"
+    href="/clients"
   >
-    Create a simple MCP server in TypeScript to understand the basics
-  </Card>
-</CardGroup>
-
-## Development tools
-
-Essential tools for building and debugging MCP servers:
-
-<CardGroup cols={2}>
-  <Card
-  title="Debugging Guide"
-  icon="bug"
-  href="/docs/tools/debugging">
-    Learn how to effectively debug MCP servers and integrations
+    See a detailed list of MCP clients
   </Card>
   <Card
-    title="MCP Inspector"
-    icon="magnifying-glass"
-    href="/docs/tools/inspector"
+    title="MCP servers"
+    icon="outlet"
+    href="/servers"
   >
-    Test and inspect your MCP servers with our interactive debugging tool
+    See a detailed list of MCP servers
   </Card>
 </CardGroup>
 
@@ -99,6 +123,26 @@ Dive deeper into MCP's core concepts and capabilities:
     href="/docs/concepts/transports"
   >
     Learn about MCP's communication mechanism
+  </Card>
+</CardGroup>
+
+## Development tools
+
+Essential tools for building and debugging MCP servers:
+
+<CardGroup cols={2}>
+  <Card
+  title="Debugging Guide"
+  icon="bug"
+  href="/docs/tools/debugging">
+    Learn how to effectively debug MCP servers and integrations
+  </Card>
+  <Card
+    title="MCP Inspector"
+    icon="magnifying-glass"
+    href="/docs/tools/inspector"
+  >
+    Test and inspect your MCP servers with our interactive debugging tool
   </Card>
 </CardGroup>
 

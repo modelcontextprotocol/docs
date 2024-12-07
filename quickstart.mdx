@@ -1,432 +1,614 @@
 ---
 title: "Quickstart"
-description: "Get started with MCP in less than 5 minutes"
+description: "Get started with building your first MCP server and client in just a few minutes."
 ---
 
-MCP is a protocol that enables secure connections between host applications, such as [Claude Desktop](https://claude.ai/download), and local services. In this quickstart guide, you'll learn how to:
+In this quickstart, you'll learn the ins and outs of MCP by building your first client and server. We'll start with a basic setup, and then progress to more complex use cases.
 
-- Set up a local SQLite database
-- Connect Claude Desktop to it through MCP
-- Query and analyze your data securely
+You can think of MCP as a bridge between your LLMs and your data and tools. Model Context Protocol was developed by Anthropic (the makers of [Claude](https://claude.ai)), but MCP can work with any Large Language Model provider that supports tool calling.
 
-<Note>
-While this guide focuses on using Claude Desktop as an example MCP host, the protocol is open and can be integrated by any application. IDEs, AI tools, and other software can all use MCP to connect to local integrations in a standardized way.
-</Note>
+### What we'll be building
 
-<Warning>
-Claude Desktop's MCP support is currently in developer preview and only supports connecting to local MCP servers running on your machine. Remote MCP connections are not yet supported. This integration is only available in the Claude Desktop app, not the Claude web interface (claude.ai).
-</Warning>
+Many LLMs (including Claude) do not currently have the ability to know the current time and date. Let's use MCP to fix that!
 
-## How MCP works
+In this quickstart, we'll start by building a Claude CLI chatbot which connects to a simple server that exposes two tools: `get_current_time` and `convert_time`.
 
-MCP (Model Context Protocol) is an open protocol that enables secure, controlled interactions between AI applications and local or remote resources. Let's break down how it works, then look at how we'll use it in this guide.
+This will allow us to ask Claude questions like:
 
-### General Architecture
-At its core, MCP follows a client-server architecture where a host application can connect to multiple servers:
+"What time is it in NYC?"
+"When it's 4 PM in New York, what time is it in London?"
 
-```mermaid
-flowchart LR
-    subgraph "Your Computer"
-        Host["MCP Host\n(Claude, IDEs, Tools)"]
-        S1["MCP Server A"]
-        S2["MCP Server B"]
-        S3["MCP Server C"]
+### Prerequisite knowledge
 
-        Host <-->|"MCP Protocol"| S1
-        Host <-->|"MCP Protocol"| S2
-        Host <-->|"MCP Protocol"| S3
+This quickstart assumes you have familiarity with:
+- Python
+- LLMs like Claude
 
-        S1 <--> R1[("Local\nResource A")]
-        S2 <--> R2[("Local\nResource B")]
-    end
+It also helps to be familiar with [tool use (aka function calling)](https://docs.anthropic.com/en/docs/build-with-claude/tool-use), but it's not required.
 
-    subgraph "Internet"
-        S3 <-->|"Web APIs"| R3[("Remote\nResource C")]
-    end
+
+### System requirements
+
+Before we begin, make sure your system meets the following requirements for best results:
+
+- You're on a Mac or Windows computer
+- You have the latest Python version installed
+
+### Set up your environment
+
+First, let's create and activate a virtual environment in a new Python project.
+
+```bash
+# Install virtualenv if you don't have it
+pip install virtualenv
+
+# Create a new directory for our project
+mkdir mcp-quickstart
+cd mcp-quickstart
+
+# Create virtual environment
+python -m virtualenv venv
+
+# Activate virtual environment
+# On Windows:
+venv\Scripts\activate
+# On Unix or MacOS:
+source venv/bin/activate
+
+# Install mcp, anthropic, and python-dotenv
+pip install mcp anthropic python-dotenv
 ```
 
-- **MCP Hosts**: Programs like Claude Desktop, IDEs, or AI tools that want to access resources through MCP
-- **MCP Clients**: Protocol clients that maintain 1:1 connections with servers
-- **MCP Servers**: Lightweight programs that each expose specific capabilities through the standardized Model Context Protocol
-- **Local Resources**: Your computer's resources (databases, files, services) that MCP servers can securely access
-- **Remote Resources**: Resources available over the internet (e.g., through APIs) that MCP servers can connect to
+### Set up Anthropic API key
 
-### In This Guide
+You'll need an Anthropic API key, which you can get from the [Anthropic Console](https://console.anthropic.com/settings/keys).
 
-For this quickstart, we'll implement a focused example using SQLite:
+After you've gotten your key, create a `.env` file to store it securely.
 
-```mermaid
-flowchart LR
-    subgraph "Your Computer"
-        direction LR
-        Claude["Claude Desktop"]
-        MCP["SQLite MCP Server"]
-        DB[(SQLite Database\n~/test.db)]
-
-        Claude <-->|"MCP Protocol\n(Queries & Results)"| MCP
-        MCP <-->|"Local Access\n(SQL Operations)"| DB
-    end
+```bash
+# Creates the .env file
+touch .env
 ```
 
-1. Claude Desktop acts as our MCP client
-2. A SQLite MCP Server provides secure database access
-3. Your local SQLite database stores the actual data
+```bash .env
+ANTHROPIC_API_KEY=<your key here>
+```
 
-The communication between the SQLite MCP server and your local SQLite database happens entirely on your machine&mdash;your SQLite database is not exposed to the internet. The Model Context Protocol ensures that Claude Desktop can only perform approved database operations through well-defined interfaces. This gives you a secure way to let Claude analyze and interact with your local data while maintaining complete control over what it can access.
+```bash .gitignore
+# Make sure to add your .env key to your .gitignore to exclude it from source control!
 
-## Prerequisites
+.env
+```
 
-- macOS or Windows
-- The latest version of [Claude Desktop](https://claude.ai/download) installed
-- [uv](https://docs.astral.sh/uv/) 0.4.18 or higher (`uv --version` to check)
-- Git (`git --version` to check)
-- SQLite (`sqlite3 --version` to check)
 
-<AccordionGroup>
-  <Accordion title="Installing prerequisites (macOS)">
-  ```bash
-  # Using Homebrew
-  brew install uv git sqlite3
+### Creating the client (client.py)
 
-  # Or download directly:
-  # uv: https://docs.astral.sh/uv/
-  # Git: https://git-scm.com
-  # SQLite: https://www.sqlite.org/download.html
-  ```
-  </Accordion>
-  <Accordion title="Installing prerequisites (Windows)">
-  ```powershell
-  # Using winget
-  winget install --id=astral-sh.uv -e
-  winget install git.git sqlite.sqlite
+Next, let's create a Python file called `client.py` in your `mcp-quickstart` directory.
 
-  # Or download directly:
-  # uv: https://docs.astral.sh/uv/
-  # Git: https://git-scm.com
-  # SQLite: https://www.sqlite.org/download.html
-  ```
-  </Accordion>
-</AccordionGroup>
+```bash
+touch client.py
+```
 
-## Installation
+Let's start by importing our libraries at the top of the file:
 
-<Tabs>
-  <Tab title="macOS">
-    <Steps>
-      <Step title="Create a sample database">
-        Let's create a simple SQLite database for testing:
+```python client.py
+import asyncio
+from typing import Optional
+from contextlib import AsyncExitStack
 
-        ```bash
-        # Create a new SQLite database
-        sqlite3 ~/test.db <<EOF
-        CREATE TABLE products (
-          id INTEGER PRIMARY KEY,
-          name TEXT,
-          price REAL
-        );
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
 
-        INSERT INTO products (name, price) VALUES
-          ('Widget', 19.99),
-          ('Gadget', 29.99),
-          ('Gizmo', 39.99),
-          ('Smart Watch', 199.99),
-          ('Wireless Earbuds', 89.99),
-          ('Portable Charger', 24.99),
-          ('Bluetooth Speaker', 79.99),
-          ('Phone Stand', 15.99),
-          ('Laptop Sleeve', 34.99),
-          ('Mini Drone', 299.99),
-          ('LED Desk Lamp', 45.99),
-          ('Keyboard', 129.99),
-          ('Mouse Pad', 12.99),
-          ('USB Hub', 49.99),
-          ('Webcam', 69.99),
-          ('Screen Protector', 9.99),
-          ('Travel Adapter', 27.99),
-          ('Gaming Headset', 159.99),
-          ('Fitness Tracker', 119.99),
-          ('Portable SSD', 179.99);
-        EOF
-        ```
-      </Step>
+from anthropic import Anthropic
+from dotenv import load_dotenv
 
-      <Step title="Configure Claude Desktop">
-        Open your Claude Desktop App configuration at `~/Library/Application Support/Claude/claude_desktop_config.json` in a text editor.
+load_dotenv()  # load environment variables from .env.
+```
 
-        For example, if you have [VS Code](https://code.visualstudio.com/) installed:
+Next, we'll create a `class` called `ClaudeCLIChatbot` with a single `__init__` method for now:
 
-        ```bash
-        code ~/Library/Application\ Support/Claude/claude_desktop_config.json
-        ```
+```python client.py
+# continued from above
 
-        Add this configuration (replace YOUR_USERNAME with your actual username):
+class ClaudeCLIChatbot:
+    def __init__(self):
+        # This is where we'll keep the MCP client session
+        self.session: Optional[ClientSession] = None
+        self.exit_stack = AsyncExitStack()
+        # Initialize Anthropic client
+        self.anthropic = Anthropic()
 
-        ```json
-        {
-          "mcpServers": {
-            "sqlite": {
-              "command": "uvx",
-              "args": ["mcp-server-sqlite", "--db-path", "/Users/YOUR_USERNAME/test.db"]
+    # rest of the class methods will go here
+```
+
+Now, lets add a `connect_to_time_server` method. We'll call this method when we first start the main process to actually initialize the connection between our client and our time server.
+
+```python client.py
+class ClaudeCLIChatbot:
+    # continued from above
+
+    async def connect_to_time_server(self, server_script_path: str):
+        """Connect to the MCP time server"""
+        server_params = StdioServerParameters(
+            command="python",
+            args=[server_script_path],
+            env=None
+        )
+        
+        stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
+        self.stdio, self.write = stdio_transport
+        self.session = await self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write))
+        
+        await self.session.initialize()
+        
+        response = await self.session.list_tools()
+        tools = response.tools
+        print("\nConnected to time server with tools:", [tool.name for tool in tools])
+
+    # more methods will go here
+```
+
+Let's add a `process_query` method. This is where the following happens:
+  - It sends the user's query to Claude
+  - Claude decides which tools to use based on the query
+  - The client executes the tools and returns the results to Claude
+  - Claude provides a natural language response
+
+```python client.py
+class ClaudeCLIChatbot:
+    # continued from above
+
+    async def process_query(self, query: str) -> str:
+        """Use Claude to understand the query and call appropriate tools"""
+        messages = [
+            {
+                "role": "user",
+                "content": query
             }
-          }
-        }
-        ```
+        ]
 
-        This tells Claude Desktop:
-        1. There's an MCP server named "sqlite"
-        2. Launch it by running `uvx mcp-server-sqlite`
-        3. Connect it to your test database
+        response = await self.session.list_tools()
+        available_tools = [{ 
+            "name": tool.name,
+            "description": tool.description,
+            "input_schema": tool.inputSchema
+        } for tool in response.tools]
 
-        Save the file, and restart **Claude Desktop**.
-      </Step>
-    </Steps>
-  </Tab>
-  <Tab title="Windows">
-    <Steps>
-      <Step title="Create a sample database">
-        Let's create a simple SQLite database for testing:
+        # Make the initial call to the Anthropic API
+        response = self.anthropic.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=1000,
+            messages=messages,
+            tools=available_tools
+        )
 
-        ```powershell
-        # Create a new SQLite database
-        $sql = @'
-        CREATE TABLE products (
-          id INTEGER PRIMARY KEY,
-          name TEXT,
-          price REAL
-        );
+        # Process each content block in the response
+        tool_results = []
+        final_text = []
 
-        INSERT INTO products (name, price) VALUES
-          ('Widget', 19.99),
-          ('Gadget', 29.99),
-          ('Gizmo', 39.99),
-          ('Smart Watch', 199.99),
-          ('Wireless Earbuds', 89.99),
-          ('Portable Charger', 24.99),
-          ('Bluetooth Speaker', 79.99),
-          ('Phone Stand', 15.99),
-          ('Laptop Sleeve', 34.99),
-          ('Mini Drone', 299.99),
-          ('LED Desk Lamp', 45.99),
-          ('Keyboard', 129.99),
-          ('Mouse Pad', 12.99),
-          ('USB Hub', 49.99),
-          ('Webcam', 69.99),
-          ('Screen Protector', 9.99),
-          ('Travel Adapter', 27.99),
-          ('Gaming Headset', 159.99),
-          ('Fitness Tracker', 119.99),
-          ('Portable SSD', 179.99);
-        '@
+        for content in response.content:
+            if content.type == 'text':
+                final_text.append(content.text)
+            elif content.type == 'tool_use':
+                tool_name = content.name
+                tool_args = content.input
+                
+                # Call the tool and get result
+                result = await self.session.call_tool(tool_name, tool_args)
+                tool_results.append({"call": tool_name, "result": result})
+                final_text.append(f"[Calling tool {tool_name} with args {tool_args}]")
 
-        cd ~
-        & sqlite3 test.db $sql
-        ```
-      </Step>
+                # Continue conversation with tool results
+                if hasattr(content, 'text') and content.text:
+                    messages.append({
+                      "role": "assistant",
+                      "content": content.text
+                    })
+                messages.append({
+                    "role": "user", 
+                    "content": result.content
+                })
 
-      <Step title="Configure Claude Desktop">
-        Open your Claude Desktop App configuration at `%APPDATA%\Claude\claude_desktop_config.json` in a text editor.
+                # Get next response from Claude
+                response = self.anthropic.messages.create(
+                    model="claude-3-5-sonnet-20241022",
+                    max_tokens=1000,
+                    messages=messages,
+                )
 
-        For example, if you have [VS Code](https://code.visualstudio.com/) installed:
+                final_text.append(response.content[0].text)
 
-        ```powershell
-        code $env:AppData\Claude\claude_desktop_config.json
-        ```
+        # Return combined output
+        return "\n".join(final_text)
+    
+    # more methods will go here
+```
 
-        Add this configuration (replace YOUR_USERNAME with your actual username):
+Now we'll add the last two methods to our class: `chat_loop` and `cleanup`. These methods are responsible for the continuous running of our chatbot and the cleanup afterwards.
 
-        ```json
-        {
-          "mcpServers": {
-            "sqlite": {
-              "command": "uvx",
-              "args": [
-                "mcp-server-sqlite",
-                "--db-path",
-                "C:\\Users\\YOUR_USERNAME\\test.db"
-              ]
+```python client.py
+class ClaudeCLIChatbot:
+    # continued from above
+
+    async def chat_loop(self):
+        """Main chat loop"""
+        print("\nWelcome to the Time Assistant!")
+        print("Ask me anything about times and timezones. For example:")
+        print("- What time is it now?")
+        print("- What time is it in Tokyo?")
+        print("- When it's 4 PM in New York, what time is it in London?")
+        print("- Convert 9:30 AM Tokyo time to New York time")
+        print("\nType 'quit' to exit.")
+        
+        while True:
+            try:
+                query = input("\nWhat would you like to know? ").strip()
+                
+                if query.lower() == 'quit':
+                    break
+                    
+                response = await self.process_query(query)
+                print("\n" + response)
+                    
+            except Exception as e:
+                print(f"\nError: {str(e)}")
+    
+    async def cleanup(self):
+        """Cleanup resources"""
+        await self.exit_stack.aclose()
+```
+
+The final step for our `client.py` file is to add and call the `main` function that will actually initialize our connection to the MCP time server (which we'll create in the next step) and begin the chat loop.
+
+```python client.py
+class ClaudeCLIChatbot:
+    # methods from above
+
+async def main():
+    if len(sys.argv) < 2:
+        print("Usage: python chatbot.py <path_to_server_script>")
+        sys.exit(1)
+        
+    chatbot = ClaudeCLIChatbot()
+    try:
+        await chatbot.connect_to_time_server(sys.argv[1])
+        await chatbot.chat_loop()
+    finally:
+        await chatbot.cleanup()
+
+if __name__ == "__main__":
+    import sys
+    asyncio.run(main())
+```
+
+Putting it all together, the `client.py` file should look like this:
+
+```python client.py
+import asyncio
+from typing import Optional
+from contextlib import AsyncExitStack
+
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+
+from anthropic import Anthropic
+from dotenv import load_dotenv
+
+load_dotenv()  # load environment variables from .env.
+
+class ClaudeCLIChatbot:
+    def __init__(self):
+        self.session: Optional[ClientSession] = None
+        self.exit_stack = AsyncExitStack()
+        # Initialize Anthropic client
+        self.anthropic = Anthropic()
+        
+    async def connect_to_time_server(self, server_script_path: str):
+        """Connect to the MCP time server"""
+        server_params = StdioServerParameters(
+            command="python",
+            args=[server_script_path],
+            env=None
+        )
+        
+        stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
+        self.stdio, self.write = stdio_transport
+        self.session = await self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write))
+        
+        await self.session.initialize()
+        
+        response = await self.session.list_tools()
+        tools = response.tools
+        print("\nConnected to time server with tools:", [tool.name for tool in tools])
+
+    async def process_query(self, query: str) -> str:
+        """Use Claude to understand the query and call appropriate tools"""
+        messages = [
+            {
+                "role": "user",
+                "content": query
             }
-          }
-        }
-        ```
+        ]
 
-        This tells Claude Desktop:
-        1. There's an MCP server named "sqlite"
-        2. Launch it by running `uvx mcp-server-sqlite`
-        3. Connect it to your test database
+        response = await self.session.list_tools()
+        available_tools = [{ 
+            "name": tool.name,
+            "description": tool.description,
+            "input_schema": tool.inputSchema
+        } for tool in response.tools]
 
-        Save the file, and restart **Claude Desktop**.
-      </Step>
-    </Steps>
-  </Tab>
-</Tabs>
+        # Make the initial call to the Anthropic API
+        response = self.anthropic.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=1000,
+            messages=messages,
+            tools=available_tools
+        )
 
-## Test it out
+        # Process each content block in the response
+        tool_results = []
+        final_text = []
 
-Let's verify everything is working. Try sending this prompt to Claude Desktop:
+        for content in response.content:
+            if content.type == 'text':
+                final_text.append(content.text)
+            elif content.type == 'tool_use':
+                tool_name = content.name
+                tool_args = content.input
+                
+                # Call the tool and get result
+                result = await self.session.call_tool(tool_name, tool_args)
+                tool_results.append({"call": tool_name, "result": result})
+                final_text.append(f"[Calling tool {tool_name} with args {tool_args}]")
 
+                # Continue conversation with tool results
+                if hasattr(content, 'text') and content.text:
+                    messages.append({
+                      "role": "assistant",
+                      "content": content.text
+                    })
+                messages.append({
+                    "role": "user", 
+                    "content": result.content
+                })
+
+                # Get next response from Claude
+                response = self.anthropic.messages.create(
+                    model="claude-3-5-sonnet-20241022",
+                    max_tokens=1000,
+                    messages=messages,
+                )
+
+                final_text.append(response.content[0].text)
+
+        # Return combined output
+        return "\n".join(final_text)
+
+    async def chat_loop(self):
+        """Main chat loop"""
+        print("\nWelcome to the Time Assistant!")
+        print("Ask me anything about times and timezones. For example:")
+        print("- What time is it now?")
+        print("- What time is it in Tokyo?")
+        print("- When it's 4 PM in New York, what time is it in London?")
+        print("- Convert 9:30 AM Tokyo time to New York time")
+        print("\nType 'quit' to exit.")
+        
+        while True:
+            try:
+                query = input("\nWhat would you like to know? ").strip()
+                
+                if query.lower() == 'quit':
+                    break
+                    
+                response = await self.process_query(query)
+                print("\n" + response)
+                    
+            except Exception as e:
+                print(f"\nError: {str(e)}")
+    
+    async def cleanup(self):
+        """Cleanup resources"""
+        await self.exit_stack.aclose()
+
+async def main():
+    if len(sys.argv) < 2:
+        print("Usage: python chatbot.py <path_to_server_script>")
+        sys.exit(1)
+        
+    chatbot = ClaudeCLIChatbot()
+    try:
+        await chatbot.connect_to_time_server(sys.argv[1])
+        await chatbot.chat_loop()
+    finally:
+        await chatbot.cleanup()
+
+if __name__ == "__main__":
+    import sys
+    asyncio.run(main())
 ```
-Can you connect to my SQLite database and tell me what products are available, and their prices?
+
+### Creating the server (server.py)
+
+Next, let's create our server file that will provide time-related tools to our client. The original source code for the MCP time server can be [found here](https://github.com/modelcontextprotocol/servers/tree/main/src/time). 
+
+Create a new file called `server.py` in your project directory.
+
+```python
+touch server.py
 ```
 
-Claude Desktop will:
-1. Connect to the SQLite MCP server
-2. Query your local database
-3. Format and present the results
+The server will expose two tools:
+- `get_current_time`: Gets the current time in a specified timezone
+- `convert_time`: Converts times between different timezones
 
-<Frame caption="Claude Desktop successfully queries our SQLite database 🎉">
-  <img src="/images/quickstart-screenshot.png" alt="Example Claude Desktop conversation showing database query results" />
+Here's the complete server code with explanations:
+
+```python
+from datetime import datetime
+from zoneinfo import ZoneInfo
+import json
+from mcp.server import Server
+from mcp.server.stdio import stdio_server
+from mcp.types import Tool, TextContent
+
+async def run_server():
+    # Create server instance
+    server = Server("time-server")
+
+    # Define our tools
+    @server.list_tools()
+    async def list_tools() -> list[Tool]:
+        return [
+            Tool(
+                name="get_current_time",
+                description="Get current time in a specific timezone",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "timezone": {
+                            "type": "string",
+                            "description": "IANA timezone name (e.g., 'UTC', 'America/New_York')"
+                        }
+                    },
+                    "required": ["timezone"]
+                }
+            ),
+            Tool(
+                name="convert_time",
+                description="Convert time between timezones",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "source_timezone": {
+                            "type": "string",
+                            "description": "Source timezone"
+                        },
+                        "time": {
+                            "type": "string",
+                            "description": "Time in HH:MM format"
+                        },
+                        "target_timezone": {
+                            "type": "string",
+                            "description": "Target timezone"
+                        }
+                    },
+                    "required": ["source_timezone", "time", "target_timezone"]
+                }
+            )
+        ]
+
+    @server.call_tool()
+    async def call_tool(name: str, arguments: dict) -> list[TextContent]:
+        try:
+            if name == "get_current_time":
+                timezone = ZoneInfo(arguments["timezone"])
+                current_time = datetime.now(timezone)
+                result = {
+                    "time": current_time.isoformat(),
+                    "timezone": str(timezone)
+                }
+            
+            elif name == "convert_time":
+                source_tz = ZoneInfo(arguments["source_timezone"])
+                target_tz = ZoneInfo(arguments["target_timezone"])
+                
+                # Parse time
+                hour, minute = map(int, arguments["time"].split(":"))
+                source_time = datetime.now(source_tz).replace(
+                    hour=hour, 
+                    minute=minute
+                )
+                
+                # Convert to target timezone
+                target_time = source_time.astimezone(target_tz)
+                
+                result = {
+                    "source_time": source_time.isoformat(),
+                    "target_time": target_time.isoformat(),
+                    "source_timezone": str(source_tz),
+                    "target_timezone": str(target_tz)
+                }
+            else:
+                raise ValueError(f"Unknown tool: {name}")
+
+            return [TextContent(
+                type="text",
+                text=json.dumps(result, indent=2)
+            )]
+        except Exception as e:
+            raise ValueError(f"Error processing request: {str(e)}")
+
+    # Initialize and run the server
+    options = server.create_initialization_options()
+    async with stdio_server() as (read_stream, write_stream):
+        await server.run(read_stream, write_stream, options)
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(run_server())
+```
+
+### Understanding the server code
+
+The server code consists of three main parts:
+
+1. **Tool Definitions**: The `list_tools()` function defines what tools are available and their input schemas. Each tool has:
+   - A name
+   - A description
+   - An input schema that defines what parameters it accepts
+
+2. **Tool Implementation**: The `call_tool()` function contains the actual logic for each tool:
+   - `get_current_time`: Returns the current time in a specified timezone
+   - `convert_time`: Converts a time from one timezone to another
+
+3. **Server Setup**: The main server setup code that initializes the MCP server and starts listening for requests
+
+### Running the application
+
+1. Make sure both files are in your project directory:
+```
+mcp-quickstart/
+├── /venv
+├── .env
+├── client.py
+└── server.py
+```
+
+2. Run the client, passing the server script as an argument:
+```bash
+python client.py server.py
+```
+
+3. You can now ask questions like:
+```
+What time is it in New York?
+What time was it an hour ago in Sydney?
+Convert 3:30 PM PST to EST
+When it's 9 AM in London, what time is it in Sydney?
+```
+
+<Frame>
+  <img src="/images/time-server-quickstart.png" />
 </Frame>
 
-## What's happening under the hood?
+### What's happening under the hood 
 
-When you interact with Claude Desktop using MCP:
+When you ask a question:
 
-1. **Server Discovery**: Claude Desktop connects to your configured MCP servers on startup
-2. **Protocol Handshake**: When you ask about data, Claude Desktop:
-   - Identifies which MCP server can help (sqlite in this case)
-   - Negotiates capabilities through the protocol
-   - Requests data or actions from the MCP server
+1. The client sends your question to Claude
+2. Claude analyzes the available tools and decides which one(s) to use
+3. The client executes the chosen tool(s) through the MCP server
+4. The results are sent back to Claude
+5. Claude formulates a natural language response
+6. The response is displayed to you!
 
-3. **Interaction Flow**:
-   ```mermaid
-   sequenceDiagram
-       participant C as Claude Desktop
-       participant M as MCP Server
-       participant D as SQLite DB
+### Next steps
 
-       C->>M: Initialize connection
-       M-->>C: Available capabilities
+Now that you have a basic MCP application working, you can:
+1. Add more tools to the server
+2. Enhance the error handling
+3. Add support for more time formats
+4. Expand the functionality to handle more complex queries
 
-       C->>M: Query request
-       M->>D: SQL query
-       D-->>M: Results
-       M-->>C: Formatted results
-   ```
-
-4. **Security**:
-   - MCP servers only expose specific, controlled capabilities
-   - MCP servers run locally on your machine, and the resources they access are not exposed to the internet
-   - Claude Desktop requires user confirmation for sensitive operations
-
-## Try these examples
-
-Now that MCP is working, try these increasingly powerful examples:
-
-<AccordionGroup>
-  <Accordion title="Basic Queries" active>
-    ```
-    What's the average price of all products in the database?
-    ```
-  </Accordion>
-  <Accordion title="Data Analysis">
-    ```
-    Can you analyze the price distribution and suggest any pricing optimizations?
-    ```
-  </Accordion>
-  <Accordion title="Complex Operations">
-    ```
-    Could you help me design and create a new table for storing customer orders?
-    ```
-  </Accordion>
-</AccordionGroup>
-
-## Add more capabilities
-
-Want to give Claude Desktop more local integration capabilities? Add these servers to your configuration:
-
-<Note>
-  Note that these MCP servers will require [Node.js](https://nodejs.org/en) to be installed on your machine.
-</Note>
-
-<AccordionGroup>
-  <Accordion title="File System Access" icon="folder-open">
-    Add this to your config to let Claude Desktop read and analyze files:
-    ```json
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/YOUR_USERNAME/Desktop"]
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="PostgreSQL Connection" icon="database">
-    Connect Claude Desktop to your PostgreSQL database:
-    ```json
-    "postgres": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/mydb"]
-    }
-    ```
-  </Accordion>
-</AccordionGroup>
-
-## More MCP Clients 
-
-While this guide demonstrates MCP using Claude Desktop as a client, several other applications support MCP integration:
-
-<CardGroup cols={2}>
-  <Card
-    title="Zed Editor"
-    icon="pen-to-square"
-    href="https://zed.dev">
-    A high-performance, multiplayer code editor with built-in MCP support for AI-powered coding assistance
-  </Card>
-
-  <Card
-    title="Cody"
-    icon="magnifying-glass"
-    href="https://sourcegraph.com/cody">
-    Code intelligence platform featuring MCP integration for enhanced code search and analysis capabilities
-  </Card>
-</CardGroup>
-
-Each host application may implement MCP features differently or support different capabilities. Check their respective documentation for specific setup instructions and supported features.
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Nothing showing up in Claude Desktop?">
-    1. Check if MCP is enabled:
-       - Click the 🔌 icon in Claude Desktop, next to the chat box
-       - Expand "Installed MCP Servers"
-       - You should see your configured servers
-
-    2. Verify your config:
-       - From Claude Desktop, go to Claude > Settings…
-       - Open the "Developer" tab to see your configuration
-
-    3. Restart Claude Desktop completely:
-       - Quit the app (not just close the window)
-       - Start it again
-  </Accordion>
-
-  <Accordion title="MCP or database errors?">
-    1. Check Claude Desktop's logs:
-       ```bash
-       tail -n 20 -f ~/Library/Logs/Claude/mcp*.log
-       ```
-
-    2. Verify database access:
-       ```bash
-       # Test database connection
-       sqlite3 ~/test.db ".tables"
-       ```
-
-    3. Common fixes:
-       - Check file paths in your config
-       - Verify database file permissions
-       - Ensure SQLite is installed properly
-  </Accordion>
-</AccordionGroup>
-
-## Next steps
-
-<CardGroup cols={2}>
-  <Card title="Build your first MCP server" icon="code" href="/docs/first-server/python">
-    Create your own MCP servers to give your LLM clients new capabilities.
-  </Card>
-
-  <Card title="Explore examples" icon="github" href="https://github.com/modelcontextprotocol/servers">
-    Browse our collection of example servers to see what's possible.
-  </Card>
-</CardGroup>
+This example demonstrates the power of MCP in connecting LLMs with external tools and data sources. You can use this pattern to build all sorts of applications that combine Claude's natural language understanding with custom tools and services.
