@@ -14,12 +14,14 @@ This page provides an overview of applications that support the Model Context Pr
 | [Sourcegraph Cody][Cody]  | ✅         | ❌         | ❌       | ❌          | ❌     | Supports resources through OpenCTX                |
 | [Firebase Genkit][Genkit] | ⚠️         | ✅         | ✅       | ❌          | ❌     | Supports resource list and lookup through tools.  |
 | [Continue][Continue]      | ✅         | ✅         | ✅       | ❌          | ❌     | Full support for all MCP features                 |
+| [GenAIScript][GenAIScript]  | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools. |
 
 [Claude]: https://claude.ai/download
 [Zed]: https://zed.dev
 [Cody]: https://sourcegraph.com/cody
 [Genkit]: https://github.com/firebase/genkit
 [Continue]: https://github.com/continuedev/continue
+[GenAIScript]: https://microsoft.github.io/genaiscript/reference/scripts/mcp-tools/
 
 [Resources]: https://modelcontextprotocol.io/docs/concepts/resources
 [Prompts]: https://modelcontextprotocol.io/docs/concepts/prompts
@@ -74,6 +76,14 @@ The Claude desktop application provides comprehensive support for MCP, enabling 
 - Prompt templates surface as slash commands
 - Use both built-in and MCP tools directly in chat
 - Supports VS Code and JetBrains IDEs, with any LLM
+
+### GenAIScript
+Programmatically assemble prompts for LLMs using [GenAIScript](https://microsoft.github.io/genaiscript/) (in JavaScript). Orchestrate LLMs, tools, and data in JavaScript.
+
+**Key features:**
+- JavaScript toolbox to work with prompts
+- Abstraction to make it easy and productive
+- Seamless Visual Studio Code integration
 
 ## Adding MCP support to your application
 
