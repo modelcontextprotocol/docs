@@ -3,9 +3,49 @@ title: Introduction
 description: 'Get started with the Model Context Protocol (MCP)'
 ---
 
-The Model Context Protocol (MCP) is an open protocol that enables seamless integration between LLM applications and external data sources and tools. Whether you're building an AI-powered IDE, enhancing a chat interface, or creating custom AI workflows, MCP provides a standardized way to connect LLMs with the context they need.
+MCP is an open protocol that standardizes how applications provide context to LLMs. Think of it as the "Language Server Protocol for AI" - it separates the concerns of providing context from the LLM interaction itself. This separation enables:
 
-## Get started with MCP 
+- **Modularity**: Each MCP server focuses on one specific integration or capability
+- **Reusability**: The same server can be used with any MCP-compatible client
+- **Composability**: Multiple servers can be combined to create powerful workflows
+- **Standardization**: A common protocol for all integrations reduces complexity
+
+## Why MCP?
+
+MCP helps you build agents and complex workflows on top of LLMs. LLMs frequently need to integrate with data and tools, and MCP provides:
+- A growing list of pre-built integrations that your LLM can directly plug into
+- The flexibility to switch between LLM providers and vendors
+- Best practices for securing your data within your infrastructure
+
+### General architecture
+
+At its core, MCP follows a client-server architecture where a host application can connect to multiple servers:
+
+```mermaid
+flowchart LR
+    subgraph "Your Computer"
+        Host["MCP Host\n(Claude, IDEs, Tools)"]
+        S1["MCP Server A"]
+        S2["MCP Server B"]
+        S3["MCP Server C"]
+        Host <-->|"MCP Protocol"| S1
+        Host <-->|"MCP Protocol"| S2
+        Host <-->|"MCP Protocol"| S3
+        S1 <--> D1[("Local\nData Source A")]
+        S2 <--> D2[("Local\nData Source B")]
+    end
+    subgraph "Internet"
+        S3 <-->|"Web APIs"| D3[("Remote\nService C")]
+    end
+```
+
+- **MCP Hosts**: Programs like Claude Desktop, IDEs, or AI tools that want to access data through MCP
+- **MCP Clients**: Protocol clients that maintain 1:1 connections with servers
+- **MCP Servers**: Lightweight programs that each expose specific capabilities through the standardized Model Context Protocol
+- **Local Data Sources**: Your computer's files, databases, and services that MCP servers can securely access
+- **Remote Services**: External systems available over the internet (e.g., through APIs) that MCP servers can connect to
+
+## Get started
 
 Choose the path that best fits your needs:
 
@@ -15,41 +55,19 @@ Choose the path that best fits your needs:
     icon="bolt"
     href="/quickstart"
   >
-    The fastest way to see MCP in action&mdash;connect example servers to Claude Desktop
-  </Card>
-  <Card
-    title="Build your first server (Python)"
-    icon="python"
-    href="/docs/first-server/python"
-  >
-    Create a simple MCP server in Python to understand the basics
-  </Card>
-  <Card
-    title="Build your first server (TypeScript)"
-    icon="square-js"
-    href="/docs/first-server/typescript"
-  >
-    Create a simple MCP server in TypeScript to understand the basics
+    Build and connect to your first MCP server
   </Card>
 </CardGroup>
 
-## Development tools
-
-Essential tools for building and debugging MCP servers:
+## Tutorials
 
 <CardGroup cols={2}>
   <Card
-  title="Debugging Guide"
-  icon="bug"
-  href="/docs/tools/debugging">
-    Learn how to effectively debug MCP servers and integrations
-  </Card>
-  <Card
-    title="MCP Inspector"
-    icon="magnifying-glass"
-    href="/docs/tools/inspector"
+    title="Building a MCP client"
+    icon="outlet"
+    href="/building-a-client"
   >
-    Test and inspect your MCP servers with our interactive debugging tool
+    Learn how to build your first MCP client
   </Card>
 </CardGroup>
 
@@ -59,7 +77,7 @@ Dive deeper into MCP's core concepts and capabilities:
 
 <CardGroup cols={2}>
   <Card
-    title="Core Architecture"
+    title="Core architecture"
     icon="sitemap"
     href="/docs/concepts/architecture"
   >
@@ -99,6 +117,26 @@ Dive deeper into MCP's core concepts and capabilities:
     href="/docs/concepts/transports"
   >
     Learn about MCP's communication mechanism
+  </Card>
+</CardGroup>
+
+## Development tools
+
+Essential tools for building and debugging MCP servers:
+
+<CardGroup cols={2}>
+  <Card
+  title="Debugging Guide"
+  icon="bug"
+  href="/docs/tools/debugging">
+    Learn how to effectively debug MCP servers and integrations
+  </Card>
+  <Card
+    title="MCP Inspector"
+    icon="magnifying-glass"
+    href="/docs/tools/inspector"
+  >
+    Test and inspect your MCP servers with our interactive debugging tool
   </Card>
 </CardGroup>
 
