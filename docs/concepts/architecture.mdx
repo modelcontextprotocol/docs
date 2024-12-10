@@ -123,27 +123,27 @@ MCP has these main types of messages:
     }
     ```
 
-2. **Notifications** are one-way messages that don't expect a response:
-    ```typescript
-    interface Notification {
-      method: string;
-      params?: { ... };
-    }
-    ```
-
-3. **Results** are successful responses to requests:
+2. **Results** are successful responses to requests:
     ```typescript
     interface Result {
       [key: string]: unknown;
     }
     ```
 
-4. **Errors** indicate that a request failed:
+3. **Errors** indicate that a request failed:
     ```typescript
     interface Error {
       code: number;
       message: string;
       data?: unknown;
+    }
+    ```
+
+4. **Notifications** are one-way messages that don't expect a response:
+    ```typescript
+    interface Notification {
+      method: string;
+      params?: { ... };
     }
     ```
 
