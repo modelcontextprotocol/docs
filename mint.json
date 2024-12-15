@@ -40,12 +40,25 @@
   "navigation": [
     {
       "group": "Get Started",
-      "pages": ["introduction", "quickstart", "examples", "clients"]
+      "pages": [
+        "introduction",
+        {
+          "group": "Quickstart",
+          "pages": [
+            "quickstart/user",
+            "quickstart/server",
+            "quickstart/client",
+            "quickstart/opensource"
+          ]
+        },
+        "examples",
+        "clients"
+      ]
     },
+    
     {
       "group": "Tutorials",
       "pages": [
-        "tutorials/building-a-client",
         "tutorials/building-mcp-with-llms",
         "docs/tools/debugging",
         "docs/tools/inspector"

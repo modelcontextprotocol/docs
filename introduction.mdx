@@ -19,7 +19,7 @@ At its core, MCP follows a client-server architecture where a host application c
 ```mermaid
 flowchart LR
     subgraph "Your Computer"
-        Host["MCP Host\n(Claude, IDEs, Tools)"]
+        Host["Host with MCP Client\n(Claude, IDEs, Tools)"]
         S1["MCP Server A"]
         S2["MCP Server B"]
         S3["MCP Server C"]
@@ -44,23 +44,49 @@ flowchart LR
 
 Choose the path that best fits your needs:
 
+#### Quick Starts
 <CardGroup cols={2}>
   <Card
-    title="Quickstart"
+    title="For Claude Users"
     icon="bolt"
-    href="/quickstart"
+    href="/quickstart/user"
   >
-    Build and connect to your first MCP server
+    Get started using pre-built servers in Claude for Desktop to experience the power of MCP
   </Card>
   <Card
-    title="Examples"
+    title="For Server Developers"
+    icon="bolt"
+    href="/quickstart/server"
+  >
+    Get started building your own server to use in Claude for Desktop and other clients
+  </Card>
+  <Card
+    title="For Client Developers"
+    icon="bolt"
+    href="/quickstart/client"
+  >
+    Get started building your own client that can integrate with all MCP servers
+  </Card>
+  <Card
+    title="For Open Source Developers"
+    icon="bolt"
+    href="/quickstart/opensource"
+  >
+    Dig into the MCP spec and contribute to the ongoing development of MCP
+  </Card>
+</CardGroup>
+
+#### Examples
+<CardGroup cols={2}>
+  <Card
+    title="Example Servers"
     icon="grid"
     href="/examples"
   >
     Check out our gallery of official MCP servers and implementations
   </Card>
   <Card
-    title="Clients"
+    title="Example Clients"
     icon="cubes"
     href="/clients"
   >
@@ -71,13 +97,6 @@ Choose the path that best fits your needs:
 ## Tutorials
 
 <CardGroup cols={2}>
-  <Card
-    title="Building a MCP client"
-    icon="outlet"
-    href="/tutorials/building-a-client"
-  >
-    Learn how to build your first MCP client
-  </Card>
   <Card
     title="Building MCP with LLMs"
     icon="comments"

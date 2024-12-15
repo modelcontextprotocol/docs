@@ -1,6 +1,6 @@
 ---
-title: "Quickstart"
-description: "Get started with building your first MCP server and connecting it to a host"
+title: "For Server Developers"
+description: "Get started building your own server to use in Claude for Desktop and other clients."
 ---
 
 In this tutorial, we'll build a simple MCP weather server and connect it to a host, Claude for Desktop. We'll start with a basic setup, and then progress to more complex use cases.
@@ -19,7 +19,7 @@ We'll build a server that exposes two tools: `get-alerts` and `get-forecast`. Th
 </Frame>
 
 <Note>
-Servers can connect to any client. We've chosen Claude for Desktop here for simplicity, but we also have guides on [building your own client](/tutorials/building-a-client) as well as a [list of other clients here](/clients).
+Servers can connect to any client. We've chosen Claude for Desktop here for simplicity, but we also have guides on [building your own client](/quickstart/client) as well as a [list of other clients here](/clients).
 </Note>
 
 <Accordion title="Why Claude for Desktop and not Claude.ai?">
@@ -400,7 +400,7 @@ Let's now test your server from an existing MCP host, Claude for Desktop.
 ## Testing your server with Claude for Desktop
 
 <Note>
-Claude for Desktop is not yet available on Linux. Linux users can proceed to the [Building a client](/tutorials/building-a-client) tutorial to build an MCP client that connects to the server we just built.
+Claude for Desktop is not yet available on Linux. Linux users can proceed to the [Building a client](/quickstart/client) tutorial to build an MCP client that connects to the server we just built.
 </Note>
 
 First, make sure you have Claude for Desktop installed. [You can install the latest version 
@@ -922,7 +922,7 @@ Let's now test your server from an existing MCP host, Claude for Desktop.
 ## Testing your server with Claude for Desktop
 
 <Note>
-Claude for Desktop is not yet available on Linux. Linux users can proceed to the [Building a client](/tutorials/building-a-client) tutorial to build an MCP client that connects to the server we just built.
+Claude for Desktop is not yet available on Linux. Linux users can proceed to the [Building a client](/quickstart/client) tutorial to build an MCP client that connects to the server we just built.
 </Note>
 
 First, make sure you have Claude for Desktop installed. [You can install the latest version 
@@ -1054,7 +1054,7 @@ tail -n 20 -f ~/Library/Logs/Claude/mcp*.log
 
 **Server not showing up in Claude**
 
-1. Check your `desktop_config.json` file syntax
+1. Check your `claude_desktop_config.json` file syntax
 2. Make sure the path to your project is absolute and not relative
 3. Restart Claude for Desktop completely
 
@@ -1101,9 +1101,9 @@ For more advanced troubleshooting, check out our guide on [Debugging MCP](/docs/
   <Card
     title="Building a client"
     icon="outlet"
-    href="/tutorials/building-a-client"
+    href="/quickstart/client"
   >
-    Learn how to build your an MCP client that can connect to your server
+    Learn how to build your own MCP client that can connect to your server
   </Card>
   <Card
     title="Example servers"
@@ -1112,10 +1112,11 @@ For more advanced troubleshooting, check out our guide on [Debugging MCP](/docs/
   >
     Check out our gallery of official MCP servers and implementations
   </Card>
-   <Card
-  title="Debugging Guide"
-  icon="bug"
-  href="/docs/tools/debugging">
+  <Card
+    title="Debugging Guide"
+    icon="bug"
+    href="/docs/tools/debugging"
+  >
     Learn how to effectively debug MCP servers and integrations
   </Card>
   <Card
