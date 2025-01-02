@@ -74,7 +74,7 @@ Now, let's create and set up our project:
 <CodeGroup>
 ```bash MacOS/Linux
 # Create a new directory for our project
-uv init weather
+mkdir weather
 cd weather
 
 # Create virtual environment and activate it
@@ -82,20 +82,15 @@ uv venv
 source .venv/bin/activate
 
 # Install dependencies
-uv add mcp httpx 
+uv add "mcp[cli]" httpx
 
-# Remove template file
-rm hello.py
-
-# Create our files
-mkdir -p src/weather
-touch src/weather/__init__.py
-touch src/weather/server.py
+# Create our server file
+touch weather.py
 ```
 
 ```powershell Windows
 # Create a new directory for our project
-uv init weather
+md weather
 cd weather
 
 # Create virtual environment and activate it
@@ -103,45 +98,14 @@ uv venv
 .venv\Scripts\activate
 
 # Install dependencies
-uv add mcp httpx
+uv add "mcp[cli]" httpx
 
-# Clean up boilerplate code
-rm hello.py
-
-# Create our files
-md src
-md src\weather
-new-item src\weather\__init__.py
-new-item src\weather\server.py
+# Create our server file
+new-item weather.py
 ```
 </CodeGroup>
 
-Add this code to `pyproject.toml`:
-
-```toml
-...rest of config
-
-[build-system]
-requires = [ "hatchling",]
-build-backend = "hatchling.build"
-
-[project.scripts]
-weather = "weather:main"
-```
-
-Add this code to `__init__.py`:
-
-```python src/weather/__init__.py
-from . import server
-import asyncio
-
-def main():
-    """Main entry point for the package."""
-    asyncio.run(server.main())
-
-# Optionally expose other important items at package level
-__all__ = ['main', 'server']
-```
+The new Python SDK uses a simpler project structure with a single file. We'll create a `weather.py` file that will contain our server implementation.
 
 Now let's dive into building your server.
 
