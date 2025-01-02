@@ -111,79 +111,23 @@ Now let's dive into building your server.
 
 ## Building your server
 
-### Importing packages
+### Importing packages and setting up the instance
 
-Add these to the top of your `server.py`:
+Add these to the top of your `weather.py`:
 ```python
 from typing import Any
-import asyncio
 import httpx
-from mcp.server.models import InitializationOptions
-import mcp.types as types
-from mcp.server import NotificationOptions, Server
-import mcp.server.stdio
-```
+from mcp.server.fastmcp import FastMCP
 
-### Setting up the instance
+# Initialize FastMCP server
+mcp = FastMCP("weather")
 
-Then initialize the server instance and the base URL for the NWS API:
-
-```python
+# Constants
 NWS_API_BASE = "https://api.weather.gov"
 USER_AGENT = "weather-app/1.0"
-
-server = Server("weather")
 ```
 
-### Implementing tool listing
-
-We need to tell clients what tools are available. The `list_tools()` decorator registers this handler:
-
-```python
-@server.list_tools()
-async def handle_list_tools() -> list[types.Tool]:
-    """
-    List available tools.
-    Each tool specifies its arguments using JSON Schema validation.
-    """
-    return [
-        types.Tool(
-            name="get-alerts",
-            description="Get weather alerts for a state",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "state": {
-                        "type": "string",
-                        "description": "Two-letter state code (e.g. CA, NY)",
-                    },
-                },
-                "required": ["state"],
-            },
-        ),
-        types.Tool(
-            name="get-forecast",
-            description="Get weather forecast for a location",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "latitude": {
-                        "type": "number",
-                        "description": "Latitude of the location",
-                    },
-                    "longitude": {
-                        "type": "number",
-                        "description": "Longitude of the location",
-                    },
-                },
-                "required": ["latitude", "longitude"],
-            },
-        ),
-    ]
-
-```
-
-This defines our two tools: `get-alerts` and `get-forecast`.
+The new FastMCP class provides a simpler, more intuitive API. Instead of manually defining tool schemas, we can use Python type hints and docstrings to automatically generate the tool definitions.
 
 ### Helper functions
 
