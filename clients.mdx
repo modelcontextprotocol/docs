@@ -12,15 +12,16 @@ This page provides an overview of applications that support the Model Context Pr
 | [Claude Desktop App][Claude] | ✅         | ✅         | ✅       | ❌          | ❌     | Full support for all MCP features            |
 | [Zed][Zed]                | ❌         | ✅         | ❌       | ❌          | ❌     | Prompts appear as slash commands                  |
 | [Sourcegraph Cody][Cody]  | ✅         | ❌         | ❌       | ❌          | ❌     | Supports resources through OpenCTX                |
-| [Firebase Genkit][Genkit] | ⚠️         | ✅         | ✅       | ❌          | ❌     | Supports resource list and lookup through tools.  |
+| [Firebase Genkit][Genkit] | ⚠️         | ✅         | ✅       | ❌          | ❌     | Supports resource list and lookup through tools  |
 | [Continue][Continue]      | ✅         | ✅         | ✅       | ❌          | ❌     | Full support for all MCP features                 |
-| [GenAIScript][GenAIScript]  | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools. |
-| [Cline][Cline]      | ✅         | ❌         | ✅       | ❌          | ❌     | Supports tools and resources.                 |
+| [GenAIScript][GenAIScript]  | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools |
+| [Cline][Cline]      | ✅         | ❌         | ✅       | ❌          | ❌     | Supports tools and resources                 |
 | [LibreChat][LibreChat]     | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools for Agents    |
 | [TheiaAI/TheiaIDE][TheiaAI/TheiaIDE]     | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools for Agents in Theia AI and the AI-powered Theia IDE    |
 | [Superinterface][Superinterface]     | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools    |
 | [5ire][5ire]  | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools. |
-| [Bee Agent Framework][Bee Agent Framework]  | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools in agentic workflows. |
+| [Bee Agent Framework][Bee Agent Framework]  | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools in agentic workflows |
+| [Apify MCP Tester][Apify MCP Tester]  | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools |
 
 
 [Claude]: https://claude.ai/download
@@ -35,6 +36,7 @@ This page provides an overview of applications that support the Model Context Pr
 [Superinterface]: https://superinterface.ai
 [5ire]: https://github.com/nanbingxyz/5ire
 [Bee Agent Framework]: https://i-am-bee.github.io/bee-agent-framework
+[Apify MCP Tester]: https://apify.com/jiri.spilka/tester-mcp-client
 
 [Resources]: https://modelcontextprotocol.io/docs/concepts/resources
 [Prompts]: https://modelcontextprotocol.io/docs/concepts/prompts
@@ -156,6 +158,17 @@ Theia AI and Theia IDE's MCP integration provide users with flexibility, making 
 
 **Learn more:**
 - [Example of using MCP tools in agentic workflow](https://i-am-bee.github.io/bee-agent-framework/#/tools?id=using-the-mcptool-class)
+
+### Apify MCP Tester
+
+[Apify MCP Tester](https://github.com/apify/tester-mcp-client) is an open-source client that connects to any MCP server using Server-Sent Events (SSE).
+It is a standalone Apify Actor designed for testing MCP servers over SSE, with support for Authorization headers.
+It uses plain JavaScript (old-school style) and is hosted on Apify, allowing you to run it without any setup.
+
+**Key features:**
+- Connects to any MCP server via SSE.
+- Works with the [Apify MCP Server](https://apify.com/apify/actors-mcp-server) to interact with one or more Apify [Actors](https://apify.com/store).
+- Dynamically utilizes tools based on context and user queries (if supported by the server).
 
 ## Adding MCP support to your application
 
