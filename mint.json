@@ -32,6 +32,11 @@
       "url": "https://github.com/modelcontextprotocol/typescript-sdk"
     },
     {
+      "name": "Java SDK",
+      "icon": "java",
+      "url": "https://github.com/modelcontextprotocol/java-sdk"
+    },
+    {
       "name": "Kotlin SDK",
       "icon": "square-k",
       "url": "https://github.com/modelcontextprotocol/kotlin-sdk"
@@ -43,6 +48,15 @@
     }
   ],
   "navigation": [
+    {
+      "group": "SDK",
+      "pages": [
+        {
+          "group": "Java",
+          "pages": ["sdk/java/mcp-overview", "sdk/java/mcp-client", "sdk/java/mcp-server"]
+        }
+      ]
+    },
     {
       "group": "Get Started",
       "pages": [
