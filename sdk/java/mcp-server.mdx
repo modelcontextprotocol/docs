@@ -35,9 +35,9 @@ McpSyncServer syncServer = McpServer.sync(transport)
 syncServer.initialize();
 
 // Register tools, resources, and prompts
-syncServer.registerTool(syncToolRegistration);
-syncServer.registerResource(syncResourceRegistration);
-syncServer.registerPrompt(syncPromptRegistration);
+syncServer.addTool(syncToolRegistration);
+syncServer.addResource(syncResourceRegistration);
+syncServer.addPrompt(syncPromptRegistration);
 
 // Send logging notifications
 syncServer.loggingNotification(LoggingMessageNotification.builder()
@@ -70,15 +70,15 @@ asyncServer.initialize()
     .subscribe();
 
 // Register tools, resources, and prompts
-asyncServer.registerTool(asyncToolRegistration)
+asyncServer.addTool(asyncToolRegistration)
     .doOnSuccess(v -> logger.info("Tool registered"))
     .subscribe();
 
-asyncServer.registerResource(asyncResourceRegistration)
+asyncServer.addResource(asyncResourceRegistration)
     .doOnSuccess(v -> logger.info("Resource registered"))
     .subscribe();
 
-asyncServer.registerPrompt(asyncPromptRegistration)
+asyncServer.addPrompt(asyncPromptRegistration)
     .doOnSuccess(v -> logger.info("Prompt registered"))
     .subscribe();
 
@@ -188,9 +188,8 @@ The transport layer in the MCP SDK is responsible for handling the communication
 <Tab title="SSE (Servlet)">
   <>
     <p>
-      Creates a Servlet-based SSE server transport.<br />
-      Included in the core <code>mcp</code> module.<br />
-      The <code>HttpServletSseServerTransport</code> can be used with any Servlet container.
+      Creates a Servlet-based SSE server transport. It is included in the core <code>mcp</code> module.<br />
+      The <code>HttpServletSseServerTransport</code> can be used with any Servlet container.<br />
       To use it with a Spring Web application, you can register it as a Servlet bean:
     </p>
 

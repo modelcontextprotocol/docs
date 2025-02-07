@@ -3,14 +3,13 @@ title: Overview
 description: Introduction to the Model Context Protocol (MCP) Java SDK
 ---
 
-Java SDK for the [Model Context Protocol](https://modelcontextprotocol.org/docs/concepts/architecture), enabling standardized interaction with AI models and tools through both synchronous and asynchronous communication.
-
-![Java MCP Client Architecture](/images/java/java-mcp-client-architecture.jpg)
-![Java MCP Server Architecture](/images/java/java-mcp-server-architecture.jpg)
+Java SDK for the [Model Context Protocol](https://modelcontextprotocol.org/docs/concepts/architecture)
+enables standardized integration between AI models and tools.
 
 ## Features
 
-- Synchronous and Asynchronous MCP Client and MCP Server implementations
+- MCP Client and MCP Server implementations
+- Supports Synchronous and Asynchronous programming paradigms
 - Standard MCP operations support:
   - Protocol [version compatibility negotiation](https://spec.modelcontextprotocol.io/specification/2024-11-05/basic/lifecycle/#initialization)
   - [Tool](https://spec.modelcontextprotocol.io/specification/2024-11-05/server/tools/) discovery, execution, list change notifications
@@ -29,17 +28,23 @@ Java SDK for the [Model Context Protocol](https://modelcontextprotocol.org/docs/
 
 ## Architecture
 
-![MCP Stack Architecture](/images/java/mcp-stack.svg)
+![Java MCP Client Architecture](/images/java/java-mcp-client-architecture.jpg)
+![Java MCP Server Architecture](/images/java/java-mcp-server-architecture.jpg)
 
 The SDK follows a layered architecture with clear separation of concerns:
 
-- **Client/Server Layer**: Both use McpSession for sync/async operations, with McpClient handling client-side protocol operations and McpServer managing server-side protocol operations.
+- **Client/Server Layer (McpClient/McpServer)**: Both use McpSession for sync/async operations,
+with McpClient handling client-side protocol operations and McpServer managing server-side protocol operations.
 - **Session Layer (McpSession)**: Manages communication patterns and state using DefaultMcpSession implementation.
 - **Transport Layer (McpTransport)**: Handles JSON-RPC message serialization/deserialization via:
   - StdioTransport (stdin/stdout) in the core module
   - HTTP SSE transports in dedicated transport modules (Java HttpClient, Spring WebFlux, Spring WebMVC)
 
-Following class diagram illustrates the layered architecture of the MCP SDK, showing the relationships between core interfaces (McpTransport, McpSession), their implementations, and the client/server components. It highlights how the transport layer connects to sessions, which in turn support both synchronous and asynchronous client/server implementations.
+![MCP Stack Architecture](/images/java/mcp-stack.svg)
+
+The following class diagram illustrates the layered architecture of the MCP SDK, showing
+the relationships between core interfaces (McpTransport, McpSession), their implementations,
+and the client/server components. It highlights how the transport layer connects to sessions, which in turn support both synchronous and asynchronous client/server implementations.
 
 ![MCP SDK Class Diagram](/images/java/java-mcp-uml-classdiagram.svg)
 
@@ -51,7 +56,7 @@ Key Interactions:
 
 ## Dependencies
 
-Add the following dependency to your Maven project:
+Add the following Maven dependency to your project:
 
 <Tabs>
   <Tab title="Maven">
@@ -142,7 +147,7 @@ dependencies {
 
 Gradle users can also use the Spring AI MCP BOM by leveraging Gradle (5.0+) native support for declaring dependency constraints using a Maven BOM.
 This is implemented by adding a 'platform' dependency handler method to the dependencies section of your Gradle build script.
-As shown in the snippet below this can then be followed by version-less declarations of the Starter Dependencies for the one or more spring-ai modules you wish to use, e.g. spring-ai-openai.
+As shown in the snippet above this can then be followed by version-less declarations of the Starter Dependencies for the one or more spring-ai modules you wish to use, e.g. spring-ai-openai.
   </Tab>
 </Tabs>
 
