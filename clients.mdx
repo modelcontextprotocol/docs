@@ -23,7 +23,8 @@ This page provides an overview of applications that support the Model Context Pr
 | [5ire][5ire]                                | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [Bee Agent Framework][Bee Agent Framework]  | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools in agentic workflows.                                        |
 | [mcp-agent][mcp-agent]                      | ❌          | ❌        | ✅      | ⚠️         | ❌    | Supports tools, server connection management, and agent workflows.          |
-| [Emacs Mcp][Mcp.el]        | ❌        | ❌        | ✅       |  ❌      | ❌         | Supports tools in Emacs. |
+| [Emacs Mcp][Mcp.el]                         | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools in Emacs.                                                    |
+| [Goose][Goose]                              | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 
 
 [Claude]: https://claude.ai/download
@@ -41,6 +42,7 @@ This page provides an overview of applications that support the Model Context Pr
 [Bee Agent Framework]: https://i-am-bee.github.io/bee-agent-framework
 [mcp-agent]: https://github.com/lastmile-ai/mcp-agent
 [Mcp.el]: https://github.com/lizqwerscott/mcp.el
+[Goose]: https://block.github.io/goose/docs/goose-architecture/#interoperability-with-extensions
 
 [Resources]: https://modelcontextprotocol.io/docs/concepts/resources
 [Prompts]: https://modelcontextprotocol.io/docs/concepts/prompts
@@ -185,6 +187,15 @@ Theia AI and Theia IDE's MCP integration provide users with flexibility, making 
 
 **Key features:**
 - Provides MCP tool support for Emacs.
+
+### Goose
+[Goose](https://github.com/block/goose) is an open source AI agent that supercharges your software development by automating coding tasks.
+
+**Key features:**
+- Expose MCP functionality to Goose through tools.
+- MCPs can be installed directly via the [extensions directory](https://block.github.io/goose/v1/extensions/), CLI, or UI.
+- Goose allows you to extend its functionality by [building your own MCP servers](https://block.github.io/goose/docs/tutorials/custom-extensions).
+- Includes built-in tools for development, web scraping, automation, memory, and integrations with JetBrains and Google Drive.
 
 ## Adding MCP support to your application
 
