@@ -8,9 +8,7 @@ enables standardized integration between AI models and tools.
 
 ## Features
 
-- MCP Client and MCP Server implementations
-- Supports Synchronous and Asynchronous programming paradigms
-- Standard MCP operations support:
+- MCP Client and MCP Server implementations supporting:
   - Protocol [version compatibility negotiation](https://spec.modelcontextprotocol.io/specification/2024-11-05/basic/lifecycle/#initialization)
   - [Tool](https://spec.modelcontextprotocol.io/specification/2024-11-05/server/tools/) discovery, execution, list change notifications
   - [Resource](https://spec.modelcontextprotocol.io/specification/2024-11-05/server/resources/) management with URI templates
@@ -18,20 +16,20 @@ enables standardized integration between AI models and tools.
   - [Prompt](https://spec.modelcontextprotocol.io/specification/2024-11-05/server/prompts/) handling and management
   - [Sampling](https://spec.modelcontextprotocol.io/specification/2024-11-05/client/sampling/) support for AI model interactions
 - Multiple transport implementations:
-  - Core transports:
+  - Default transports:
     - Stdio-based transport for process-based communication
     - Java HttpClient-based SSE client transport for HTTP SSE Client-side streaming
     - Servlet-based SSE server transport for HTTP SSE Server streaming
   - Spring-based transports:
-    - WebFlux SSE transport for reactive HTTP streaming
+    - WebFlux SSE client and server transports for reactive HTTP streaming
     - WebMVC SSE transport for servlet-based HTTP streaming
+- Supports Synchronous and Asynchronous programming paradigms
 
 ## Architecture
 
-![Java MCP Client Architecture](/images/java/java-mcp-client-architecture.jpg)
-![Java MCP Server Architecture](/images/java/java-mcp-server-architecture.jpg)
-
 The SDK follows a layered architecture with clear separation of concerns:
+
+![MCP Stack Architecture](/images/java/mcp-stack.svg)
 
 - **Client/Server Layer (McpClient/McpServer)**: Both use McpSession for sync/async operations,
 with McpClient handling client-side protocol operations and McpServer managing server-side protocol operations.
@@ -40,13 +38,16 @@ with McpClient handling client-side protocol operations and McpServer managing s
   - StdioTransport (stdin/stdout) in the core module
   - HTTP SSE transports in dedicated transport modules (Java HttpClient, Spring WebFlux, Spring WebMVC)
 
-![MCP Stack Architecture](/images/java/mcp-stack.svg)
 
-The following class diagram illustrates the layered architecture of the MCP SDK, showing
-the relationships between core interfaces (McpTransport, McpSession), their implementations,
-and the client/server components. It highlights how the transport layer connects to sessions, which in turn support both synchronous and asynchronous client/server implementations.
+The MCP Client is a key component in the Model Context Protocol (MCP) architecture, responsible for establishing and managing connections with MCP servers. 
+It implements the client-side of the protocol.
 
-![MCP SDK Class Diagram](/images/java/java-mcp-uml-classdiagram.svg)
+![Java MCP Client Architecture](/images/java/java-mcp-client-architecture.jpg)
+
+The MCP Server is a foundational component in the Model Context Protocol (MCP) architecture that provides tools, resources, and capabilities to clients. 
+It implements the server-side of the protocol.
+
+![Java MCP Server Architecture](/images/java/java-mcp-server-architecture.jpg)
 
 Key Interactions:
 

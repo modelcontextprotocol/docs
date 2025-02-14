@@ -214,16 +214,16 @@ This capability allows:
 
 ### Tool Execution
 
-Tools are server-side functions that can be discovered and executed by clients. The client provides methods to list available tools and execute them with parameters.
+Tools are server-side functions that clients can discover and execute. The MCP client provides methods to list available tools and execute them with specific parameters. Each tool has a unique name and accepts a map of parameters.
 
 <Tabs>
   <Tab title="Sync API">
 ```java
-// List available tools
+// List available tools and their names
 var tools = client.listTools();
 tools.forEach(tool -> System.out.println(tool.getName()));
 
-// Execute a tool
+// Execute a tool with parameters
 var result = client.callTool("calculator", Map.of(
     "operation", "add",
     "a", 1,
@@ -234,13 +234,13 @@ var result = client.callTool("calculator", Map.of(
 
   <Tab title="Async API">
 ```java
-// List available tools
+// List available tools asynchronously
 client.listTools()
     .doOnNext(tools -> tools.forEach(tool -> 
         System.out.println(tool.getName())))
     .subscribe();
 
-// Execute a tool
+// Execute a tool asynchronously
 client.callTool("calculator", Map.of(
         "operation", "add",
         "a", 1,
@@ -253,16 +253,16 @@ client.callTool("calculator", Map.of(
 
 ### Resource Access
 
-Resources are server-side data sources that can be accessed by clients using URI templates. The client provides methods to list available resources and retrieve their content.
+Resources represent server-side data sources that clients can access using URI templates. The MCP client provides methods to discover available resources and retrieve their contents through a standardized interface.
 
 <Tabs>
   <Tab title="Sync API">
 ```java
-// List available resources
+// List available resources and their names
 var resources = client.listResources();
 resources.forEach(resource -> System.out.println(resource.getName()));
 
-// Get a resource
+// Retrieve resource content using a URI template
 var content = client.getResource("file", Map.of(
     "path", "/path/to/file.txt"
 ));
@@ -271,13 +271,13 @@ var content = client.getResource("file", Map.of(
 
   <Tab title="Async API">
 ```java
-// List available resources
+// List available resources asynchronously
 client.listResources()
     .doOnNext(resources -> resources.forEach(resource -> 
         System.out.println(resource.getName())))
     .subscribe();
 
-// Get a resource
+// Retrieve resource content asynchronously
 client.getResource("file", Map.of(
         "path", "/path/to/file.txt"
     ))
@@ -288,16 +288,16 @@ client.getResource("file", Map.of(
 
 ### Prompt System
 
-The prompt system allows clients to interact with server-side prompt templates. The client provides methods to list available prompts and execute them with parameters.
+The prompt system enables interaction with server-side prompt templates. These templates can be discovered and executed with custom parameters, allowing for dynamic text generation based on predefined patterns.
 
 <Tabs>
   <Tab title="Sync API">
 ```java
-// List available prompts
+// List available prompt templates
 var prompts = client.listPrompts();
 prompts.forEach(prompt -> System.out.println(prompt.getName()));
 
-// Execute a prompt
+// Execute a prompt template with parameters
 var response = client.executePrompt("echo", Map.of(
     "text", "Hello, World!"
 ));
@@ -306,13 +306,13 @@ var response = client.executePrompt("echo", Map.of(
 
   <Tab title="Async API">
 ```java
-// List available prompts
+// List available prompt templates asynchronously
 client.listPrompts()
     .doOnNext(prompts -> prompts.forEach(prompt -> 
         System.out.println(prompt.getName())))
     .subscribe();
 
-// Execute a prompt
+// Execute a prompt template asynchronously
 client.executePrompt("echo", Map.of(
         "text", "Hello, World!"
     ))
