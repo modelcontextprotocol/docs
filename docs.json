@@ -87,6 +87,11 @@
           "icon": "square-js"
         },
         {
+          "anchor": "Java SDK",
+          "href": "https://github.com/modelcontextprotocol/java-sdk",
+          "icon": "java"
+        },
+        {
           "anchor": "Kotlin SDK",
           "href": "https://github.com/modelcontextprotocol/kotlin-sdk",
           "icon": "square-k"
