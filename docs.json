@@ -9,10 +9,9 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "anchors": [
+    "tabs": [
       {
-        "anchor": "Documentation",
-        "icon": "book-open",
+        "tab": "Documentation",
         "groups": [
           {
             "group": "Get Started",
@@ -59,6 +58,20 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "SDKs",
+        "icon": "book-open",
+        "groups": [
+          {
+            "group": "Java",
+            "pages": [
+              "sdk/java/mcp-overview",
+              "sdk/java/mcp-client",
+              "sdk/java/mcp-server"
+            ]
+          }
+        ]
       }
     ],
     "global": {
@@ -72,6 +85,11 @@
           "anchor": "TypeScript SDK",
           "href": "https://github.com/modelcontextprotocol/typescript-sdk",
           "icon": "square-js"
+        },
+        {
+          "anchor": "Java SDK",
+          "href": "https://github.com/modelcontextprotocol/java-sdk",
+          "icon": "java"
         },
         {
           "anchor": "Kotlin SDK",
