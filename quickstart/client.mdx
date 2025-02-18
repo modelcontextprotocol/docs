@@ -402,6 +402,364 @@ If you see:
 
 </Tab>
 
+<Tab title="Node">
+
+[You can find the complete code for this tutorial here.](https://github.com/modelcontextprotocol/quickstart-resources/tree/main/mcp-client-typescript)
+
+## System Requirements
+
+Before starting, ensure your system meets these requirements:
+- Mac or Windows computer
+- Node.js 16 or higher installed
+- Latest version of `npm` installed
+- Anthropic API key (Claude)
+
+## Setting Up Your Environment
+
+First, let's create and set up our project:
+
+<CodeGroup>
+```bash MacOS/Linux
+# Create project directory
+mkdir mcp-client-typescript
+cd mcp-client-typescript
+
+# Initialize npm project
+npm init -y
+
+# Install dependencies
+npm install @anthropic-ai/sdk @modelcontextprotocol/sdk dotenv
+
+# Install dev dependencies
+npm install --save-dev @types/node
+
+# Initialize TypeScript configuration
+npx tsc --init
+
+# Create source file
+touch index.ts
+```
+
+```powershell Windows
+# Create project directory
+md mcp-client-typescript
+cd mcp-client-typescript
+
+# Initialize npm project
+npm init -y
+
+# Install dependencies
+npm install @anthropic-ai/sdk @modelcontextprotocol/sdk dotenv
+
+# Install dev dependencies
+npm install --save-dev @types/node
+
+# Initialize TypeScript configuration
+npx tsc --init
+
+# Create source file
+new-item index.ts
+```
+</CodeGroup>
+
+## Setting Up Your API Key
+
+You'll need an Anthropic API key from the [Anthropic Console](https://console.anthropic.com/settings/keys).
+
+Create a `.env` file to store it:
+
+```bash
+echo "ANTHROPIC_API_KEY=<your key here>" > .env
+```
+
+Add `.env` to your `.gitignore`:
+```bash
+echo ".env" >> .gitignore
+```
+
+<Warning>
+Make sure you keep your `ANTHROPIC_API_KEY` secure!
+</Warning>
+
+## Creating the Client
+
+### Basic Client Structure
+
+First, let's set up our imports and create the basic client class in `index.ts`:
+
+```typescript
+import { Anthropic } from "@anthropic-ai/sdk";
+import {
+  MessageParam,
+  Tool,
+} from "@anthropic-ai/sdk/resources/messages/messages.mjs";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import readline from "readline/promises";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+if (!ANTHROPIC_API_KEY) {
+  throw new Error("ANTHROPIC_API_KEY is not set");
+}
+
+class MCPClient {
+  private mcp: Client;
+  private anthropic: Anthropic;
+  private transport: StdioClientTransport | null = null;
+
+  constructor() {
+    this.anthropic = new Anthropic({
+      apiKey: ANTHROPIC_API_KEY,
+    });
+    this.mcp = new Client({ name: "mcp-client-cli", version: "1.0.0" });
+  }
+  // methods will go here
+}
+```
+
+### Server Connection Management
+
+Next, we'll implement the method to connect to an MCP server:
+
+```typescript
+async connectToServer(serverScriptPath: string) {
+  try {
+    const isJs = serverScriptPath.endsWith(".js");
+    const isPy = serverScriptPath.endsWith(".py");
+    if (!isJs && !isPy) {
+      throw new Error("Server script must be a .js or .py file");
+    }
+    const command = isPy
+      ? process.platform === "win32"
+        ? "python"
+        : "python3"
+      : process.execPath;
+    this.transport = new StdioClientTransport({
+      command,
+      args: [serverScriptPath],
+    });
+    this.mcp.connect(this.transport);
+    const toolsResult = await this.mcp.listTools();
+    const tools = toolsResult.tools.map((tool) => {
+      return {
+        name: tool.name,
+        description: tool.description,
+        input_schema: tool.inputSchema,
+      };
+    });
+    console.log(
+      "Connected to server with tools:",
+      tools.map(({ name }) => name)
+    );
+  } catch (e) {
+    console.log("Failed to connect to MCP server: ", e);
+    throw e;
+  }
+}
+```
+
+### Query Processing Logic
+
+Now let's add the core functionality for processing queries and handling tool calls:
+
+```typescript
+async processQuery(query: string) {
+  const messages: MessageParam[] = [
+    {
+      role: "user",
+      content: query,
+    },
+  ];
+
+  const toolsResult = await this.mcp.listTools();
+  const tools: Tool[] = toolsResult.tools.map((tool) => {
+    return {
+      name: tool.name,
+      description: tool.description,
+      input_schema: tool.inputSchema,
+    };
+  });
+  const response = await this.anthropic.messages.create({
+    model: "claude-3-5-sonnet-20241022",
+    max_tokens: 1000,
+    messages,
+    tools,
+  });
+
+  const finalText = [];
+  const toolResults = [];
+
+  for (const content of response.content) {
+    if (content.type === "text") {
+      finalText.push(content.text);
+    } else if (content.type === "tool_use") {
+      const toolName = content.name;
+      const toolArgs = content.input as { [x: string]: unknown } | undefined;
+
+      const result = await this.mcp.callTool({
+        name: toolName,
+        arguments: toolArgs,
+      });
+      toolResults.push(result);
+      finalText.push(
+        `[Calling tool ${toolName} with args ${JSON.stringify(toolArgs)}]`
+      );
+
+      messages.push({
+        role: "user",
+        content: result.content as string,
+      });
+
+      const response = await this.anthropic.messages.create({
+        model: "claude-3-5-sonnet-20241022",
+        max_tokens: 1000,
+        messages,
+      });
+
+      finalText.push(
+        response.content[0].type === "text" ? response.content[0].text : ""
+      );
+    }
+  }
+
+  return finalText.join("\n");
+}
+```
+
+### Interactive Chat Interface
+
+Now we'll add the chat loop and cleanup functionality:
+
+```typescript
+async chatLoop() {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  console.log("\nMCP Client Started!");
+  console.log("Type your queries or 'quit' to exit.");
+
+  while (true) {
+    const message = await rl.question("\nQuery: ");
+    if (message === "quit") {
+      break;
+    }
+    const response = await this.processQuery(message);
+    console.log("\n" + response);
+  }
+}
+
+async cleanup() {
+  await this.mcp.close();
+}
+```
+
+### Main Entry Point
+
+Finally, we'll add the main execution logic:
+
+```typescript
+async function main() {
+  if (process.argv.length < 3) {
+    console.log("Usage: node index.ts <path_to_server_script>");
+    return;
+  }
+  const mcpClient = new MCPClient();
+  try {
+    await mcpClient.connectToServer(process.argv[2]);
+    await mcpClient.chatLoop();
+  } finally {
+    await mcpClient.cleanup();
+    process.exit(0);
+  }
+}
+
+main();
+```
+
+## Running the Client
+
+To run your client with any MCP server:
+
+```bash
+# Build TypeScript
+npx tsc
+
+# Run the client
+node build/index.js path/to/server.py # python server
+node build/index.js path/to/build/index.js # node server
+```
+
+<Note>
+If you're continuing the weather tutorial from the server quickstart, your command might look something like this: `node build/index.js .../quickstart-resources/weather-server-typescript/build/index.js`
+</Note>
+
+## Key Components Explained
+
+### 1. Client Initialization
+- Uses TypeScript classes for better type safety
+- Initializes Anthropic client with API key
+- Creates MCP client with version information
+
+### 2. Server Connection
+- Supports both Python and Node.js servers
+- Platform-aware Python command selection
+- Establishes stdio transport connection
+
+### 3. Query Processing
+- Strong typing for messages and tools
+- Handles Claude's tool calls
+- Manages conversation context
+- Processes tool results
+
+### 4. Resource Management
+- Proper cleanup of resources
+- Type-safe error handling
+- Graceful shutdown procedures
+
+## Best Practices
+
+1. **Type Safety**
+   - Use TypeScript interfaces for tool schemas
+   - Leverage type checking for API responses
+   - Define clear types for message structures
+
+2. **Error Handling**
+   - Implement proper try-catch blocks
+   - Type-check API responses
+   - Validate server connections
+
+3. **Security**
+   - Store API keys in environment variables
+   - Validate server paths
+   - Check tool permissions
+
+## Troubleshooting
+
+### Common Issues
+
+1. **TypeScript Build Errors**
+   - Ensure `tsconfig.json` is properly configured
+   - Check import paths are correct
+   - Verify all dependencies are installed
+
+2. **Runtime Errors**
+   - Check API key is properly set
+   - Verify server path is correct
+   - Ensure proper Node.js version
+
+3. **Server Connection Issues**
+   - Verify server script exists
+   - Check file permissions
+   - Ensure correct Python/Node command
+
+</Tab>
+
+
 <Tab title="Java">
 
 <Note>
