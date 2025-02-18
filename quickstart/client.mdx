@@ -405,13 +405,12 @@ If you see:
 <Tab title="Node">
 
 [You can find the complete code for this tutorial here.](https://github.com/modelcontextprotocol/quickstart-resources/tree/main/mcp-client-typescript)
-
 ## System Requirements
 
 Before starting, ensure your system meets these requirements:
 - Mac or Windows computer
 - Node.js 16 or higher installed
-- Latest version of `npm` installed
+- Latest version of `npm` and `npx` installed
 - Anthropic API key (Claude)
 
 ## Setting Up Your Environment
@@ -698,64 +697,77 @@ node build/index.js path/to/build/index.js # node server
 If you're continuing the weather tutorial from the server quickstart, your command might look something like this: `node build/index.js .../quickstart-resources/weather-server-typescript/build/index.js`
 </Note>
 
-## Key Components Explained
+**The client will:**
+1. Connect to the specified server
+2. List available tools
+3. Start an interactive chat session where you can:
+   - Enter queries
+   - See tool executions
+   - Get responses from Claude
 
-### 1. Client Initialization
-- Uses TypeScript classes for better type safety
-- Initializes Anthropic client with API key
-- Creates MCP client with version information
+## How It Works
 
-### 2. Server Connection
-- Supports both Python and Node.js servers
-- Platform-aware Python command selection
-- Establishes stdio transport connection
+When you submit a query:
 
-### 3. Query Processing
-- Strong typing for messages and tools
-- Handles Claude's tool calls
-- Manages conversation context
-- Processes tool results
+1. The client gets the list of available tools from the server
+2. Your query is sent to Claude along with tool descriptions
+3. Claude decides which tools (if any) to use
+4. The client executes any requested tool calls through the server
+5. Results are sent back to Claude
+6. Claude provides a natural language response
+7. The response is displayed to you
 
-### 4. Resource Management
-- Proper cleanup of resources
-- Type-safe error handling
-- Graceful shutdown procedures
+## Best practices
 
-## Best Practices
+1. **Error Handling**
+   - Use TypeScript's type system for better error detection
+   - Wrap tool calls in try-catch blocks
+   - Provide meaningful error messages
+   - Gracefully handle connection issues
 
-1. **Type Safety**
-   - Use TypeScript interfaces for tool schemas
-   - Leverage type checking for API responses
-   - Define clear types for message structures
-
-2. **Error Handling**
-   - Implement proper try-catch blocks
-   - Type-check API responses
-   - Validate server connections
-
-3. **Security**
-   - Store API keys in environment variables
-   - Validate server paths
-   - Check tool permissions
+2. **Security**
+   - Store API keys securely in `.env`
+   - Validate server responses
+   - Be cautious with tool permissions
 
 ## Troubleshooting
 
-### Common Issues
+### Server Path Issues
+- Double-check the path to your server script is correct
+- Use the absolute path if the relative path isn't working
+- For Windows users, make sure to use forward slashes (/) or escaped backslashes (\\) in the path
+- Verify the server file has the correct extension (.js for Node.js or .py for Python)
 
-1. **TypeScript Build Errors**
-   - Ensure `tsconfig.json` is properly configured
-   - Check import paths are correct
-   - Verify all dependencies are installed
+Example of correct path usage:
+```bash
+# Relative path
+node build/index.js ./server/build/index.js
 
-2. **Runtime Errors**
-   - Check API key is properly set
-   - Verify server path is correct
-   - Ensure proper Node.js version
+# Absolute path
+node build/index.js /Users/username/projects/mcp-server/build/index.js
 
-3. **Server Connection Issues**
-   - Verify server script exists
-   - Check file permissions
-   - Ensure correct Python/Node command
+# Windows path (either format works)
+node build/index.js C:/projects/mcp-server/build/index.js
+node build/index.js C:\\projects\\mcp-server\\build\\index.js
+```
+
+### Response Timing
+- The first response might take up to 30 seconds to return
+- This is normal and happens while:
+  - The server initializes
+  - Claude processes the query
+  - Tools are being executed
+- Subsequent responses are typically faster
+- Don't interrupt the process during this initial waiting period
+
+### Common Error Messages
+
+If you see:
+- `Error: Cannot find module`: Check your build folder and ensure TypeScript compilation succeeded
+- `Connection refused`: Ensure the server is running and the path is correct
+- `Tool execution failed`: Verify the tool's required environment variables are set
+- `ANTHROPIC_API_KEY is not set`: Check your .env file and environment variables
+- `TypeError`: Ensure you're using the correct types for tool arguments
 
 </Tab>
 
