@@ -508,6 +508,7 @@ class MCPClient {
   private mcp: Client;
   private anthropic: Anthropic;
   private transport: StdioClientTransport | null = null;
+  private tools: Tool[] = [];
 
   constructor() {
     this.anthropic = new Anthropic({
@@ -536,13 +537,15 @@ async connectToServer(serverScriptPath: string) {
         ? "python"
         : "python3"
       : process.execPath;
+    
     this.transport = new StdioClientTransport({
       command,
       args: [serverScriptPath],
     });
     this.mcp.connect(this.transport);
+    
     const toolsResult = await this.mcp.listTools();
-    const tools = toolsResult.tools.map((tool) => {
+    this.tools = toolsResult.tools.map((tool) => {
       return {
         name: tool.name,
         description: tool.description,
@@ -551,7 +554,7 @@ async connectToServer(serverScriptPath: string) {
     });
     console.log(
       "Connected to server with tools:",
-      tools.map(({ name }) => name)
+      this.tools.map(({ name }) => name)
     );
   } catch (e) {
     console.log("Failed to connect to MCP server: ", e);
@@ -573,19 +576,11 @@ async processQuery(query: string) {
     },
   ];
 
-  const toolsResult = await this.mcp.listTools();
-  const tools: Tool[] = toolsResult.tools.map((tool) => {
-    return {
-      name: tool.name,
-      description: tool.description,
-      input_schema: tool.inputSchema,
-    };
-  });
   const response = await this.anthropic.messages.create({
     model: "claude-3-5-sonnet-20241022",
     max_tokens: 1000,
     messages,
-    tools,
+    tools: this.tools,
   });
 
   const finalText = [];
@@ -639,16 +634,20 @@ async chatLoop() {
     output: process.stdout,
   });
 
-  console.log("\nMCP Client Started!");
-  console.log("Type your queries or 'quit' to exit.");
+  try {
+    console.log("\nMCP Client Started!");
+    console.log("Type your queries or 'quit' to exit.");
 
-  while (true) {
-    const message = await rl.question("\nQuery: ");
-    if (message === "quit") {
-      break;
+    while (true) {
+      const message = await rl.question("\nQuery: ");
+      if (message.toLowerCase() === "quit") {
+        break;
+      }
+      const response = await this.processQuery(message);
+      console.log("\n" + response);
     }
-    const response = await this.processQuery(message);
-    console.log("\n" + response);
+  } finally {
+    rl.close();
   }
 }
 
