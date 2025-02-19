@@ -410,7 +410,7 @@ If you see:
 Before starting, ensure your system meets these requirements:
 - Mac or Windows computer
 - Node.js 16 or higher installed
-- Latest version of `npm` and `npx` installed
+- Latest version of `npm` installed
 - Anthropic API key (Claude)
 
 ## Setting Up Your Environment
@@ -430,10 +430,7 @@ npm init -y
 npm install @anthropic-ai/sdk @modelcontextprotocol/sdk dotenv
 
 # Install dev dependencies
-npm install --save-dev @types/node
-
-# Initialize TypeScript configuration
-npx tsc --init
+npm install -D @types/node typescript
 
 # Create source file
 touch index.ts
@@ -451,15 +448,43 @@ npm init -y
 npm install @anthropic-ai/sdk @modelcontextprotocol/sdk dotenv
 
 # Install dev dependencies
-npm install --save-dev @types/node
-
-# Initialize TypeScript configuration
-npx tsc --init
+npm install -D @types/node typescript
 
 # Create source file
 new-item index.ts
 ```
 </CodeGroup>
+
+Update your `package.json` to set `type: "module"` and a build script:
+
+```json package.json
+{
+  "type": "module",
+  "scripts": {
+    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
+  }
+}
+```
+
+Create a `tsconfig.json` in the root of your project:
+
+```json tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "outDir": "./build",
+    "rootDir": "./",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["index.ts"],
+  "exclude": ["node_modules"]
+}
+```
 
 ## Setting Up Your API Key
 
@@ -685,7 +710,7 @@ To run your client with any MCP server:
 
 ```bash
 # Build TypeScript
-npx tsc
+npm run build
 
 # Run the client
 node build/index.js path/to/server.py # python server
