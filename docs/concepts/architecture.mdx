@@ -15,19 +15,26 @@ MCP follows a client-server architecture where:
 
 ```mermaid
 flowchart LR
-    subgraph "&nbsp;Host (e.g., Claude Desktop)&nbsp;"
-        client1[MCP Client]
-        client2[MCP Client]
-    end
-    subgraph "Server Process"
-        server1[MCP Server]
-    end
-    subgraph "Server Process"
-        server2[MCP Server]
-    end
 
-    client1 <-->|Transport Layer| server1
-    client2 <-->|Transport Layer| server2
+subgraph Host
+    direction TB
+    client1[MCP Client]
+    client2[MCP Client]
+end
+
+subgraph ServerProcess1
+    direction TB
+    s1[MCP Server]
+end
+
+subgraph ServerProcess2
+    direction TB
+    s2[MCP Server]
+end
+
+client1 -- "Transport Layer" --> s1
+client2 -- "Transport Layer" --> s2
+
 ```
 
 ## Core components
