@@ -259,12 +259,25 @@ Supported logging levels (in order of increasing severity): DEBUG (0), INFO (1),
   <Tab title="Sync">
 ```java
 // Sync tool registration
+var schema = """
+            {
+              "type" : "object",
+              "id" : "urn:jsonschema:Operation",
+              "properties" : {
+                "operation" : {
+                  "type" : "string"
+                },
+                "a" : {
+                  "type" : "number"
+                },
+                "b" : {
+                  "type" : "number"
+                }
+              }
+            }
+            """;
 var syncToolRegistration = new McpServerFeatures.SyncToolRegistration(
-    new Tool("calculator", "Basic calculator", Map.of(
-        "operation", "string",
-        "a", "number",
-        "b", "number"
-    )),
+    new Tool("calculator", "Basic calculator", schema),
     arguments -> {
         // Tool implementation
         return new CallToolResult(result, false);
@@ -276,12 +289,25 @@ var syncToolRegistration = new McpServerFeatures.SyncToolRegistration(
   <Tab title="Async">
 ```java
 // Async tool registration
+var schema = """
+            {
+              "type" : "object",
+              "id" : "urn:jsonschema:Operation",
+              "properties" : {
+                "operation" : {
+                  "type" : "string"
+                },
+                "a" : {
+                  "type" : "number"
+                },
+                "b" : {
+                  "type" : "number"
+                }
+              }
+            }
+            """;
 var asyncToolRegistration = new McpServerFeatures.AsyncToolRegistration(
-    new Tool("calculator", "Basic calculator", Map.of(
-        "operation", "string",
-        "a", "number",
-        "b", "number"
-    )),
+    new Tool("calculator", "Basic calculator", schema),
     arguments -> {
         // Tool implementation
         return Mono.just(new CallToolResult(result, false));
