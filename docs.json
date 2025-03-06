@@ -136,5 +136,10 @@
       "source": "/quickstart",
       "destination": "/quickstart/server"
     }
+  ],
+  "scripts": [
+    {
+      "src": "/gurubase.js"
+    }
   ]
 }
