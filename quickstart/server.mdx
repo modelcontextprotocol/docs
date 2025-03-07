@@ -303,6 +303,14 @@ In this case, we'll add our single weather server like so:
 
 <Warning>
 You may need to put the full path to the `uv` executable in the `command` field. You can get this by running `which uv` on MacOS/Linux or `where uv` on Windows.
+Replace the directory path with the absolute path to your weather project folder
+For macOS/Linux users: Use forward slashes in your path (e.g., /Users/username/projects/weather-app/weather)
+If uv is not in your PATH, specify the full path to the executable:
+
+Windows: "command": "C:\\Users\\YourUsername\\AppData\\Local\\Programs\\Python\\uv.exe"
+macOS: "command": "/Users/username/.local/bin/uv"
+
+The configuration defines a server named "weather" that will be managed by MCP
 </Warning>
 
 <Note>
@@ -311,7 +319,7 @@ Make sure you pass in the absolute path to your server.
 
 This tells Claude for Desktop:
 1. There's an MCP server named "weather"
-2. To launch it by running `uv --directory /ABSOLUTE/PATH/TO/PARENT/FOLDER/weather run weather`
+2. To launch it by running `uv --directory /ABSOLUTE/PATH/TO/PARENT/FOLDER/weather run weather.py`
 
 Save the file, and restart **Claude for Desktop**.
 </Tab>
