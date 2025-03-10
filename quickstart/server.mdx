@@ -311,12 +311,12 @@ Make sure you pass in the absolute path to your server.
 
 This tells Claude for Desktop:
 1. There's an MCP server named "weather"
-2. To launch it by running `uv --directory /ABSOLUTE/PATH/TO/PARENT/FOLDER/weather run weather`
+2. To launch it by running `uv --directory /ABSOLUTE/PATH/TO/PARENT/FOLDER/weather run weather.py`
 
 Save the file, and restart **Claude for Desktop**.
 </Tab>
 
-<Tab title="Node">
+<Tab title='Node'>
 Let's get started with building our weather server! [You can find the complete code for what we'll be building here.](https://github.com/modelcontextprotocol/quickstart-resources/tree/main/weather-server-typescript)
 
 ### Prerequisite knowledge
@@ -386,7 +386,7 @@ Update your package.json to add type: "module" and a build script:
     "weather": "./build/index.js"
   },
   "scripts": {
-    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
+    "build": "tsc && chmod 755 build/index.js"
   },
   "files": [
     "build"
@@ -743,7 +743,7 @@ Save the file, and restart **Claude for Desktop**.
 <Tab title='Java'>
 
 <Note>
-This is a quickstart demo based on Spring AI MCP auto-configuraiton and boot starters. 
+This is a quickstart demo based on Spring AI MCP auto-configuration and boot starters. 
 To learn how to create sync and async MCP Servers, manually, consult the [Java SDK Server](/sdk/java/mcp-server) documentation.
 </Note>
 
@@ -1165,7 +1165,7 @@ For more advanced troubleshooting, check out our guide on [Debugging MCP](/docs/
   <Card
     title="Building MCP with LLMs"
     icon="comments"
-    href="/building-mcp-with-llms"
+    href="/tutorials/building-mcp-with-llms"
   >
     Learn how to use LLMs like Claude to speed up your MCP development
   </Card>
