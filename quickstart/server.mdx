@@ -316,7 +316,7 @@ This tells Claude for Desktop:
 Save the file, and restart **Claude for Desktop**.
 </Tab>
 
-<Tab title="Node">
+<Tab title='Node'>
 Let's get started with building our weather server! [You can find the complete code for what we'll be building here.](https://github.com/modelcontextprotocol/quickstart-resources/tree/main/weather-server-typescript)
 
 ### Prerequisite knowledge
@@ -386,7 +386,7 @@ Update your package.json to add type: "module" and a build script:
     "weather": "./build/index.js"
   },
   "scripts": {
-    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
+    "build": "tsc && chmod 755 build/index.js",
   },
   "files": [
     "build"

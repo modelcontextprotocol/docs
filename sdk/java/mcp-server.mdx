@@ -31,9 +31,6 @@ McpSyncServer syncServer = McpServer.sync(transport)
         .build())
     .build();
 
-// Initialize the server
-syncServer.initialize();
-
 // Register tools, resources, and prompts
 syncServer.addTool(syncToolRegistration);
 syncServer.addResource(syncResourceRegistration);
@@ -63,11 +60,6 @@ McpAsyncServer asyncServer = McpServer.async(transport)
         .logging()           // Enable logging support
         .build())
     .build();
-
-// Initialize the server
-asyncServer.initialize()
-    .doOnSuccess(v -> logger.info("Server initialized"))
-    .subscribe();
 
 // Register tools, resources, and prompts
 asyncServer.addTool(asyncToolRegistration)
