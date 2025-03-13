@@ -1033,6 +1033,378 @@ The [starter-webflux-server](https://github.com/spring-projects/spring-ai-exampl
 It showcases how to define and register MCP Tools, Resources, and Prompts, using the Spring Boot's auto-configuration capabilities.
 
 </Tab>
+
+<Tab title='Kotlin'>
+Let's get started with building our weather server! [You can find the complete code for what we'll be building here.](https://github.com/modelcontextprotocol/kotlin-sdk/tree/main/samples/weather-stdio-server)
+
+### Prerequisite knowledge
+
+This quickstart assumes you have familiarity with:
+- Kotlin
+- LLMs like Claude
+
+### System requirements
+
+- Java 17 or higher installed.
+
+### Set up your environment
+
+First, let's install `java` and `gradle` if you haven't already.
+You can download `java` from [official Oracle JDK website](https://www.oracle.com/java/technologies/downloads/).
+Verify your `java` installation:
+```bash
+java --version
+```
+
+Now, let's create and set up your project:
+
+<CodeGroup>
+```bash MacOS/Linux
+# Create a new directory for our project
+mkdir weather
+cd weather
+
+# Initialize a new kotlin project
+gradle init
+```
+
+```powershell Windows
+# Create a new directory for our project
+md weather
+cd weather
+
+# Initialize a new kotlin project
+gradle init
+```
+</CodeGroup>
+
+After running `gradle init`, you will be presented with options for creating your project.
+Select **Application** as the project type, **Kotlin** as the programming language, and **Java 17** as the Java version.
+
+Alternatively, you can create a Kotlin application using the [IntelliJ IDEA project wizard](https://kotlinlang.org/docs/jvm-get-started.html).
+
+After creating the project, add the following dependencies:
+<CodeGroup>
+```kotlin build.gradle.kts
+val mcpVersion = "0.3.0"
+val slf4jVersion = "2.0.9"
+val ktorVersion = "3.1.1"
+
+dependencies {
+    implementation("io.modelcontextprotocol:kotlin-sdk:$mcpVersion")
+    implementation("org.slf4j:slf4j-nop:$slf4jVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+}
+```
+
+```groovy build.gradle
+def mcpVersion = '0.3.0'
+def slf4jVersion = '2.0.9'
+def ktorVersion = '3.1.1'
+
+dependencies {
+    implementation "io.modelcontextprotocol:kotlin-sdk:$mcpVersion"
+    implementation "org.slf4j:slf4j-nop:$slf4jVersion"
+    implementation "io.ktor:ktor-client-content-negotiation:$ktorVersion"
+    implementation "io.ktor:ktor-serialization-kotlinx-json:$ktorVersion"
+}
+```
+</CodeGroup>
+
+Also, add the following plugins to your build script:
+<CodeGroup>
+```kotlin build.gradle.kts
+plugins {
+    kotlin("plugin.serialization") version "your_version_of_kotlin"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+}
+```
+
+```groovy build.gradle
+plugins {
+    id 'org.jetbrains.kotlin.plugin.serialization' version 'your_version_of_kotlin'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+```
+</CodeGroup>
+
+Now let’s dive into building your server.
+
+## Building your server
+
+### Setting up the instance
+
+Add a server initialization function:
+
+```kotlin
+// Main function to run the MCP server
+fun `run mcp server`() {
+    val def = CompletableDeferred<Unit>()
+
+    // Create the MCP Server instance with a basic implementation
+    val server = Server(
+        Implementation(
+            name = "weather", // Tool name is "weather"
+            version = "1.0.0" // Version of the implementation
+        ),
+        ServerOptions(
+            capabilities = ServerCapabilities(tools = ServerCapabilities.Tools(listChanged = true))
+        )
+    ) { def.complete(Unit) }
+
+    // Create a transport using standard IO for server communication
+    val transport = StdioServerTransport(
+        System.`in`.asInput(),
+        System.out.asSink().buffered()
+    )
+
+    runBlocking {
+        server.connect(transport)
+        val done = Job()
+        server.onCloseCallback = {
+            done.complete()
+        }
+        done.join()
+    }
+}
+```
+
+### Weather API helper functions
+
+Next, let's add functions and data classes for querying and converting responses from the National Weather Service API:
+
+```kotlin
+// Extension function to fetch forecast information for given latitude and longitude
+suspend fun HttpClient.getForecast(latitude: Double, longitude: Double): List<String> {
+    val points = this.get("/points/$latitude,$longitude").body<Points>()
+    val forecast = this.get(points.properties.forecast).body<Forecast>()
+    return forecast.properties.periods.map { period ->
+        """
+            ${period.name}:
+            Temperature: ${period.temperature} ${period.temperatureUnit}
+            Wind: ${period.windSpeed} ${period.windDirection}
+            Forecast: ${period.detailedForecast}
+        """.trimIndent()
+    }
+}
+
+// Extension function to fetch weather alerts for a given state
+suspend fun HttpClient.getAlerts(state: String): List<String> {
+    val alerts = this.get("/alerts/active/area/$state").body<Alert>()
+    return alerts.features.map { feature ->
+        """
+            Event: ${feature.properties.event}
+            Area: ${feature.properties.areaDesc}
+            Severity: ${feature.properties.severity}
+            Description: ${feature.properties.description}
+            Instruction: ${feature.properties.instruction}
+        """.trimIndent()
+    }
+}
+
+@Serializable
+data class Points(
+    val properties: Properties
+) {
+    @Serializable
+    data class Properties(val forecast: String)
+}
+
+@Serializable
+data class Forecast(
+    val properties: Properties
+) {
+    @Serializable
+    data class Properties(val periods: List<Period>)
+
+    @Serializable
+    data class Period(
+        val number: Int, val name: String, val startTime: String, val endTime: String,
+        val isDaytime: Boolean, val temperature: Int, val temperatureUnit: String,
+        val temperatureTrend: String, val probabilityOfPrecipitation: JsonObject,
+        val windSpeed: String, val windDirection: String,
+        val shortForecast: String, val detailedForecast: String,
+    )
+}
+
+@Serializable
+data class Alert(
+    val features: List<Feature>
+) {
+    @Serializable
+    data class Feature(
+        val properties: Properties
+    )
+
+    @Serializable
+    data class Properties(
+        val event: String, val areaDesc: String, val severity: String,
+        val description: String, val instruction: String?,
+    )
+}
+```
+
+### Implementing tool execution
+
+The tool execution handler is responsible for actually executing the logic of each tool. Let's add it:
+
+```kotlin
+// Create an HTTP client with a default request configuration and JSON content negotiation
+val httpClient = HttpClient {
+    defaultRequest {
+    url("https://api.weather.gov")
+    headers {
+        append("Accept", "application/geo+json")
+        append("User-Agent", "WeatherApiClient/1.0")
+    }
+    contentType(ContentType.Application.Json)
+    }
+    // Install content negotiation plugin for JSON serialization/deserialization
+    install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+}
+
+// Register a tool to fetch weather alerts by state
+server.addTool(
+    name = "get_alerts",
+    description = """
+        Get weather alerts for a US state. Input is Two-letter US state code (e.g. CA, NY)
+    """.trimIndent(),
+    inputSchema = Tool.Input(
+        properties = JsonObject(
+            mapOf(
+                "state" to JsonObject(
+                    mapOf(
+                        "type" to JsonPrimitive("string"),
+                        "description" to JsonPrimitive("Two-letter US state code (e.g. CA, NY)")
+                    )
+                ),
+            )
+        ),
+        required = listOf("state")
+    )
+) { request ->
+    val state = request.arguments["state"]?.jsonPrimitive?.content
+    if (state == null) {
+        return@addTool CallToolResult(
+            content = listOf(TextContent("The 'state' parameter is required."))
+        )
+    }
+
+    val alerts = httpClient.getAlerts(state)
+
+    CallToolResult(content = alerts.map { TextContent(it) })
+}
+
+// Register a tool to fetch weather forecast by latitude and longitude
+server.addTool(
+    name = "get_forecast",
+    description = """
+        Get weather forecast for a specific latitude/longitude
+    """.trimIndent(),
+    inputSchema = Tool.Input(
+        properties = JsonObject(
+            mapOf(
+                "latitude" to JsonObject(mapOf("type" to JsonPrimitive("number"))),
+                "longitude" to JsonObject(mapOf("type" to JsonPrimitive("number"))),
+            )
+        ),
+        required = listOf("latitude", "longitude")
+    )
+) { request ->
+    val latitude = request.arguments["latitude"]?.jsonPrimitive?.doubleOrNull
+    val longitude = request.arguments["longitude"]?.jsonPrimitive?.doubleOrNull
+    if (latitude == null || longitude == null) {
+        return@addTool CallToolResult(
+            content = listOf(TextContent("The 'latitude' and 'longitude' parameters are required."))
+        )
+    }
+
+    val forecast = httpClient.getForecast(latitude, longitude)
+
+    CallToolResult(content = forecast.map { TextContent(it) })
+}
+```
+
+### Running the server
+
+Finally, implement the main function to run the server:
+
+```kotlin
+fun main() = `run mcp server`()
+```
+
+Make sure to run `./gradlew build` to build your server. This is a very important step in getting your server to connect.
+
+Let's now test your server from an existing MCP host, Claude for Desktop.
+
+## Testing your server with Claude for Desktop
+
+<Note>
+Claude for Desktop is not yet available on Linux. Linux users can proceed to the [Building a client](/quickstart/client) tutorial to build an MCP client that connects to the server we just built.
+</Note>
+
+First, make sure you have Claude for Desktop installed. [You can install the latest version
+here.](https://claude.ai/download) If you already have Claude for Desktop, **make sure it's updated to the latest version.**
+
+We'll need to configure Claude for Desktop for whichever MCP servers you want to use.
+To do this, open your Claude for Desktop App configuration at `~/Library/Application Support/Claude/claude_desktop_config.json` in a text editor.
+Make sure to create the file if it doesn't exist.
+
+For example, if you have [VS Code](https://code.visualstudio.com/) installed:
+
+<CodeGroup>
+```bash MacOS/Linux
+code ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+
+```powershell Windows
+code $env:AppData\Claude\claude_desktop_config.json
+```
+</CodeGroup>
+
+You'll then add your servers in the `mcpServers` key.
+The MCP UI elements will only show up in Claude for Desktop if at least one server is properly configured.
+
+In this case, we'll add our single weather server like so:
+
+<CodeGroup>
+```json MacOS/Linux
+{
+    "mcpServers": {
+        "weather": {
+            "command": "java",
+            "args": [
+                "-jar",
+                "/ABSOLUTE/PATH/TO/PARENT/FOLDER/weather/build/libs/weather-0.1.0-all.jar"
+            ]
+        }
+    }
+}
+```
+
+```json Windows
+{
+    "mcpServers": {
+        "weather": {
+            "command": "java",
+            "args": [
+                "-jar",
+                "C:\\PATH\\TO\\PARENT\\FOLDER\\weather\\build\\libs\\weather-0.1.0-all.jar"
+            ]
+        }
+    }
+}
+```
+</CodeGroup>
+
+This tells Claude for Desktop:
+1. There's an MCP server named "weather"
+2. Launch it by running `java -jar /ABSOLUTE/PATH/TO/PARENT/FOLDER/weather/build/libs/weather-0.1.0-all.jar`
+
+Save the file, and restart **Claude for Desktop**.
+
+</Tab>
 </Tabs>
 
 ### Test with commands
