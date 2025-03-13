@@ -31,6 +31,8 @@ This page provides an overview of applications that support the Model Context Pr
 | [SpinAI][SpinAI]                            | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools for Typescript AI Agents                                     |
 | [OpenSumi][OpenSumi]                        | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools in OpenSumi                                                  |
 | [Daydreams Agents][Daydreams]              | ✅          | ✅        | ✅      | ❌         | ❌    | Support for drop in Servers to Daydreams agents                             |
+| [Apify MCP Tester][Apify MCP Tester]  | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools |
+
 
 [Claude]: https://claude.ai/download
 [Cursor]: https://cursor.com
@@ -44,6 +46,7 @@ This page provides an overview of applications that support the Model Context Pr
 [TheiaAI/TheiaIDE]: https://eclipsesource.com/blogs/2024/12/19/theia-ide-and-theia-ai-support-mcp/
 [Superinterface]: https://superinterface.ai
 [5ire]: https://github.com/nanbingxyz/5ire
+[Apify MCP Tester]: https://apify.com/jiri.spilka/tester-mcp-client
 [BeeAI Framework]: https://i-am-bee.github.io/beeai-framework
 [mcp-agent]: https://github.com/lastmile-ai/mcp-agent
 [Mcp.el]: https://github.com/lizqwerscott/mcp.el
@@ -252,6 +255,17 @@ Theia AI and Theia IDE's MCP integration provide users with flexibility, making 
 **Key features:**
 - Supports MCP Servers in config
 - Exposes MCP Client
+
+### Apify MCP Tester
+
+[Apify MCP Tester](https://github.com/apify/tester-mcp-client) is an open-source client that connects to any MCP server using Server-Sent Events (SSE).
+It is a standalone Apify Actor designed for testing MCP servers over SSE, with support for Authorization headers.
+It uses plain JavaScript (old-school style) and is hosted on Apify, allowing you to run it without any setup.
+
+**Key features:**
+- Connects to any MCP server via SSE.
+- Works with the [Apify MCP Server](https://apify.com/apify/actors-mcp-server) to interact with one or more Apify [Actors](https://apify.com/store).
+- Dynamically utilizes tools based on context and user queries (if supported by the server).
 
 ## Adding MCP support to your application
 
