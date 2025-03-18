@@ -966,6 +966,405 @@ This provides similar functionality but uses a WebFlux-based SSE transport imple
 
 </Tab>
 
+<Tab title="Kotlin">
+
+[You can find the complete code for this tutorial here.](https://github.com/modelcontextprotocol/kotlin-sdk/tree/main/samples/kotlin-mcp-client)
+
+## System Requirements
+
+Before starting, ensure your system meets these requirements:
+- Java 17 or higher
+- Anthropic API key (Claude)
+
+## Setting up your environment
+
+First, let's install `java` and `gradle` if you haven't already.
+You can download `java` from [official Oracle JDK website](https://www.oracle.com/java/technologies/downloads/).
+Verify your `java` installation:
+```bash
+java --version
+```
+
+Now, let's create and set up your project:
+
+<CodeGroup>
+```bash MacOS/Linux
+# Create a new directory for our project
+mkdir kotlin-mcp-client
+cd kotlin-mcp-client
+
+# Initialize a new kotlin project
+gradle init
+```
+
+```powershell Windows
+# Create a new directory for our project
+md kotlin-mcp-client
+cd kotlin-mcp-client
+# Initialize a new kotlin project
+gradle init
+```
+</CodeGroup>
+
+After running `gradle init`, you will be presented with options for creating your project.
+Select **Application** as the project type, **Kotlin** as the programming language, and **Java 17** as the Java version.
+
+Alternatively, you can create a Kotlin application using the [IntelliJ IDEA project wizard](https://kotlinlang.org/docs/jvm-get-started.html).
+
+After creating the project, add the following dependencies:
+
+<CodeGroup>
+```kotlin build.gradle.kts
+val mcpVersion = "0.3.0"
+val slf4jVersion = "2.0.9"
+val anthropicVersion = "0.8.0"
+
+dependencies {
+    implementation("io.modelcontextprotocol:kotlin-sdk:$mcpVersion")
+    implementation("org.slf4j:slf4j-nop:$slf4jVersion")
+    implementation("com.anthropic:anthropic-java:$anthropicVersion")
+}
+```
+
+```groovy build.gradle
+def mcpVersion = '0.3.0'
+def slf4jVersion = '2.0.9'
+def anthropicVersion = '0.8.0'
+dependencies {
+    implementation "io.modelcontextprotocol:kotlin-sdk:$mcpVersion"
+    implementation "org.slf4j:slf4j-nop:$slf4jVersion"
+    implementation "com.anthropic:anthropic-java:$anthropicVersion"
+}
+```
+</CodeGroup>
+
+Also, add the following plugins to your build script:
+<CodeGroup>
+```kotlin build.gradle.kts
+plugins {
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+}
+```
+
+```groovy build.gradle
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+```
+</CodeGroup>
+
+## Setting up your API key
+
+You'll need an Anthropic API key from the [Anthropic Console](https://console.anthropic.com/settings/keys).
+
+Set up your API key:
+```bash
+export ANTHROPIC_API_KEY='your-anthropic-api-key-here'
+```
+
+<Warning>
+Make sure your keep your `ANTHROPIC_API_KEY` secure!
+</Warning>
+
+## Creating the Client
+
+### Basic Client Structure
+
+First, let's create the basic client class:
+
+```kotlin
+class MCPClient : AutoCloseable {
+    private val anthropic = AnthropicOkHttpClient.fromEnv()
+    private val mcp: Client = Client(clientInfo = Implementation(name = "mcp-client-cli", version = "1.0.0"))
+    private lateinit var tools: List<ToolUnion>
+
+    // methods will go here
+
+    override fun close() {
+        runBlocking {
+            mcp.close()
+            anthropic.close()
+        }
+    }
+```
+
+### Server connection managment
+
+Next, we'll implement the method to connect to an MCP server:
+
+```kotlin
+suspend fun connectToServer(serverScriptPath: String) {
+    try {
+        val command = buildList {
+            when (serverScriptPath.substringAfterLast(".")) {
+                "js" -> add("node")
+                "py" -> add(if (System.getProperty("os.name").lowercase().contains("win")) "python" else "python3")
+                "jar" -> addAll(listOf("java", "-jar"))
+                else -> throw IllegalArgumentException("Server script must be a .js, .py or .jar file")
+            }
+            add(serverScriptPath)
+        }
+
+        val process = ProcessBuilder(command).start()
+        val transport = StdioClientTransport(
+            input = process.inputStream.asSource().buffered(),
+            output = process.outputStream.asSink().buffered()
+        )
+
+        mcp.connect(transport)
+
+        val toolsResult = mcp.listTools()
+        tools = toolsResult?.tools?.map { tool ->
+            ToolUnion.ofTool(
+                Tool.builder()
+                    .name(tool.name)
+                    .description(tool.description ?: "")
+                    .inputSchema(
+                        Tool.InputSchema.builder()
+                            .type(JsonValue.from(tool.inputSchema.type))
+                            .properties(tool.inputSchema.properties.toJsonValue())
+                            .putAdditionalProperty("required", JsonValue.from(tool.inputSchema.required))
+                            .build()
+                    )
+                    .build()
+            )
+        } ?: emptyList()
+        println("Connected to server with tools: ${tools.joinToString(", ") { it.tool().get().name() }}")
+    } catch (e: Exception) {
+        println("Failed to connect to MCP server: $e")
+        throw e
+    }
+}
+```
+
+Also create a helper function to convert from `JsonObject` to `JsonValue` for Anthropic:
+```kotlin
+private fun JsonObject.toJsonValue(): JsonValue {
+    val mapper = ObjectMapper()
+    val node = mapper.readTree(this.toString())
+    return JsonValue.fromJsonNode(node)
+}
+```
+
+### Query processing logic
+
+Now let's add the core functionality for processing queries and handling tool calls:
+
+```kotlin
+private val messageParamsBuilder: MessageCreateParams.Builder = MessageCreateParams.builder()
+    .model(Model.CLAUDE_3_5_SONNET_20241022)
+    .maxTokens(1024)
+
+suspend fun processQuery(query: String): String {
+    val messages = mutableListOf(
+        MessageParam.builder()
+            .role(MessageParam.Role.USER)
+            .content(query)
+            .build()
+    )
+
+    val response = anthropic.messages().create(
+        messageParamsBuilder
+            .messages(messages)
+            .tools(tools)
+            .build()
+    )
+
+    val finalText = mutableListOf<String>()
+    response.content().forEach { content ->
+        when {
+            content.isText() -> finalText.add(content.text().getOrNull()?.text() ?: "")
+
+            content.isToolUse() -> {
+                val toolName = content.toolUse().get().name()
+                val toolArgs =
+                    content.toolUse().get()._input().convert(object : TypeReference<Map<String, JsonValue>>() {})
+
+                val result = mcp.callTool(
+                    name = toolName,
+                    arguments = toolArgs ?: emptyMap()
+                )
+                finalText.add("[Calling tool $toolName with args $toolArgs]")
+
+                messages.add(
+                    MessageParam.builder()
+                        .role(MessageParam.Role.USER)
+                        .content(
+                            """
+                                "type": "tool_result",
+                                "tool_name": $toolName,
+                                "result": ${result?.content?.joinToString("\n") { (it as TextContent).text ?: "" }}
+                            """.trimIndent()
+                        )
+                        .build()
+                )
+
+                val aiResponse = anthropic.messages().create(
+                    messageParamsBuilder
+                        .messages(messages)
+                        .build()
+                )
+
+                finalText.add(aiResponse.content().first().text().getOrNull()?.text() ?: "")
+            }
+        }
+    }
+
+    return finalText.joinToString("\n", prefix = "", postfix = "")
+}
+```
+
+### Interactive chat
+
+We'll add the chat loop:
+
+```kotlin
+suspend fun chatLoop() {
+    println("\nMCP Client Started!")
+    println("Type your queries or 'quit' to exit.")
+
+    while (true) {
+        print("\nQuery: ")
+        val message = readLine() ?: break
+        if (message.lowercase() == "quit") break
+        val response = processQuery(message)
+        println("\n$response")
+    }
+}
+```
+
+### Main entry point
+
+Finally, we'll add the main execution function:
+
+```kotlin
+fun main(args: Array<String>) = runBlocking {
+    if (args.isEmpty()) throw IllegalArgumentException("Usage: java -jar <your_path>/build/libs/kotlin-mcp-client-0.1.0-all.jar <path_to_server_script>")
+    val serverPath = args.first()
+    val client = MCPClient()
+    client.use {
+        client.connectToServer(serverPath)
+        client.chatLoop()
+    }
+}
+```
+
+## Running the client
+
+To run your client with any MCP server:
+
+```bash
+./gradlew build
+
+# Run the client
+java -jar build/libs/<your-jar-name>.jar path/to/server.jar # jvm server
+java -jar build/libs/<your-jar-name>.jar path/to/server.py # python server
+java -jar build/libs/<your-jar-name>.jar path/to/build/index.js # node server
+```
+
+<Note>
+If you're continuing the weather tutorial from the server quickstart, your command might look something like this: `java -jar build/libs/kotlin-mcp-client-0.1.0-all.jar .../samples/weather-stdio-server/build/libs/weather-stdio-server-0.1.0-all.jar`
+</Note>
+
+**The client will:**
+1. Connect to the specified server
+2. List available tools
+3. Start an interactive chat session where you can:
+   - Enter queries
+   - See tool executions
+   - Get responses from Claude
+
+## How it works
+
+Here's a high-level workflow schema:
+
+```mermaid
+---
+config:
+    theme: neutral
+---
+sequenceDiagram
+    actor User
+    participant Client
+    participant Claude
+    participant MCP_Server as MCP Server
+    participant Tools
+
+    User->>Client: Send query
+    Client<<->>MCP_Server: Get available tools
+    Client->>Claude: Send query with tool descriptions
+    Claude-->>Client: Decide tool execution
+    Client->>MCP_Server: Request tool execution
+    MCP_Server->>Tools: Execute chosen tools
+    Tools-->>MCP_Server: Return results
+    MCP_Server-->>Client: Send results
+    Client->>Claude: Send tool results
+    Claude-->>Client: Provide final response
+    Client-->>User: Display response
+```
+
+When you submit a query:
+1. The client gets the list of available tools from the server
+2. Your query is sent to Claude along with tool descriptions
+3. Claude decides which tools (if any) to use
+4. The client executes any requested tool calls through the server
+5. Results are sent back to Claude
+6. Claude provides a natural language response
+7. The response is displayed to you
+
+## Best practices
+
+1. **Error Handling**
+   - Leverage Kotlin's type system to model errors explicitly
+   - Wrap external tool and API calls in `try-catch` blocks when exceptions are possible
+   - Provide clear and meaningful error messages
+   - Handle network timeouts and connection issues gracefully
+
+2. **Security**
+   - Store API keys and secrets securely in `local.properties`, environment variables, or secret managers
+   - Validate all external responses to avoid unexpected or unsafe data usage
+   - Be cautious with permissions and trust boundaries when using tools
+
+## Troubleshooting
+
+### Server Path Issues
+- Double-check the path to your server script is correct
+- Use the absolute path if the relative path isn't working
+- For Windows users, make sure to use forward slashes (/) or escaped backslashes (\\) in the path
+- Make sure that the required runtime is installed (java for Java, npm for Node.js, or uv for Python)
+- Verify the server file has the correct extension (.jar for Java, .js for Node.js or .py for Python)
+
+Example of correct path usage:
+```bash
+# Relative path
+java -jar build/libs/client.jar ./server/build/libs/server.jar
+
+# Absoulute path
+java -jar build/libs/client.jar /Users/username/projects/mcp-server/build/libs/server.jar
+
+# Windows path (either format works)
+java -jar build/libs/client.jar C:/projects/mcp-server/build/libs/server.jar
+java -jar build/libs/client.jar C:\\projects\\mcp-server\\build\\libs\\server.jar
+```
+
+### Response Timing
+- The first response might take up to 30 seconds to return
+- This is normal and happens while:
+  - The server initializes
+  - Claude processes the query
+  - Tools are being executed
+- Subsequent responses are typically faster
+- Don't interrupt the process during this initial waiting period
+
+### Common Error Messages
+
+If you see:
+- `Connection refused`: Ensure the server is running and the path is correct
+- `Tool execution failed`: Verify the tool's required environment variables are set
+- `ANTHROPIC_API_KEY is not set`: Check your environment variables
+
+</Tab>
+
 </Tabs>
 
 ## Next steps
