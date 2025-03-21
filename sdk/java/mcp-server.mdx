@@ -490,14 +490,11 @@ var calculatorTool = new McpServerFeatures.AsyncToolSpecification(
         
         // Create a sampling request
         McpSchema.CreateMessageRequest request = McpSchema.CreateMessageRequest.builder()
-            .content(McpSchema.Content.builder()
-                .type("text")
-                .text("Calculate: " + arguments.get("expression"))
-                .build())
+            .content(new McpSchema.TextContent("Calculate: " + arguments.get("expression")))
             .modelPreferences(McpSchema.ModelPreferences.builder()
                 .hints(List.of(
-                    McpSchema.ModelHint.builder().name("claude-3-sonnet").build(),
-                    McpSchema.ModelHint.builder().name("claude").build()
+                    McpSchema.ModelHint.of("claude-3-sonnet"),
+                    McpSchema.ModelHint.of("claude")
                 ))
                 .intelligencePriority(0.8)  // Prioritize intelligence
                 .speedPriority(0.5)         // Moderate speed importance
@@ -524,26 +521,9 @@ server.addTool(calculatorTool)
 </Tabs>
 
 The `CreateMessageRequest` object allows you to specify: `Content` - the input text or image for the model, 
-`Model Preferences` - hints and priorities for model selection, `System Prompt` - instructions for the model's behavior and `Max Tokens` - maximum length of the generated response
+`Model Preferences` - hints and priorities for model selection, `System Prompt` - instructions for the model's behavior and 
+`Max Tokens` - maximum length of the generated response.
 
-```java
-McpSchema.CreateMessageRequest request = McpSchema.CreateMessageRequest.builder()
-    .content(McpSchema.Content.builder()
-        .type("text")
-        .text("What is the capital of France?")
-        .build())
-    .modelPreferences(McpSchema.ModelPreferences.builder()
-        .hints(List.of(
-            McpSchema.ModelHint.builder().name("claude-3-sonnet").build(),
-            McpSchema.ModelHint.builder().name("claude").build()
-        ))
-        .intelligencePriority(0.8)
-        .speedPriority(0.5)
-        .build())
-    .systemPrompt("You are a helpful assistant.")
-    .maxTokens(100)
-    .build();
-```
 
 ## Error Handling
 
