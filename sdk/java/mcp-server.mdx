@@ -445,14 +445,11 @@ var calculatorTool = new McpServerFeatures.SyncToolSpecification(
         
         // Create a sampling request
         McpSchema.CreateMessageRequest request = McpSchema.CreateMessageRequest.builder()
-            .content(McpSchema.Content.builder()
-                .type("text")
-                .text("Calculate: " + arguments.get("expression"))
-                .build())
+            .content(new McpSchema.TextContent("Calculate: " + arguments.get("expression")))
             .modelPreferences(McpSchema.ModelPreferences.builder()
                 .hints(List.of(
-                    McpSchema.ModelHint.builder().name("claude-3-sonnet").build(),
-                    McpSchema.ModelHint.builder().name("claude").build()
+                    McpSchema.ModelHint.of("claude-3-sonnet"),
+                    McpSchema.ModelHint.of("claude")
                 ))
                 .intelligencePriority(0.8)  // Prioritize intelligence
                 .speedPriority(0.5)         // Moderate speed importance
