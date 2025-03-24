@@ -358,29 +358,85 @@ When implementing or using MCP transport:
 9. Monitor connection health
 10. Implement proper security measures
 
+---
+
 ## Security Considerations
 
 When implementing transport:
 
 ### Authentication and Authorization
-- Implement proper authentication mechanisms
-- Validate client credentials
-- Use secure token handling
-- Implement authorization checks
+
+- **Adopt standardized protocols:**  
+  Use established protocols such as OAuth 2.0/OAuth 2.1 or OpenID Connect. These provide secure frameworks for issuing, managing, and revoking tokens.  
+  *Example:* In a Node.js service, you might use [Passport.js](http://www.passportjs.org/) with an OAuth 2.0 strategy to validate client credentials.
+
+- **Validate client credentials:**  
+  - **Store credentials securely:** Use a secure database (with encryption at rest) to store client secrets. For example, [Cyberark Conjur](https://www.conjur.org), [IBM/Hashicorp's Vault](https://www.hashicorp.com/en/products/vault), [Infiscal](https://infisical.com), etc. 
+
+- **Use secure token handling:**  
+  - **Use JWTs (JSON Web Tokens):** JWTs can be signed and optionally encrypted. Ensure they have expiration times and support token rotation.  
+  - **Secure storage:** Ensure tokens are stored securely on the client side (using HttpOnly cookies or secure storage in mobile apps).  
+  - **Revocation:** Implement mechanisms to revoke tokens if suspicious behavior is detected.
+
+- **Implement authorization checks:**  
+  - **Role-based Access Control (RBAC):** Define roles and permissions. For example, allow only users with the “admin” role to perform sensitive operations.  
+  - **Access Control Lists (ACLs):** Use ACLs to enforce which endpoints and data a user or service can access.  
+  - **Policy enforcement:** Integrate middleware in your service stack that checks the incoming request’s credentials and required permissions before proceeding.
 
 ### Data Security
-- Use TLS for network transport
-- Encrypt sensitive data
-- Validate message integrity
-- Implement message size limits
-- Sanitize input data
+
+**Use TLS for network transport.**
+
+- Ensure that your servers are configured to use HTTPS by installing valid TLS certificates (e.g., from Let’s Encrypt or your organization's certificate authority [CA] server).
+- Configure your web server (Nginx, Apache, etc.) to enforce strong cipher suites and disable outdated protocols.
+
+**Sanitize input data:**
+
+- **Input validation libraries:**  
+  Use libraries that validate and sanitize user inputs to prevent injection attacks (SQL injection, XSS, etc.).  
+  *Example:* In Python, the `bleach` library can help sanitize HTML content; in JavaScript, you might use `DOMPurify`.
+  
 
 ### Network Security
-- Implement rate limiting
-- Use appropriate timeouts
-- Handle denial of service scenarios
-- Monitor for unusual patterns
-- Implement proper firewall rules
+
+**Implement rate limiting:**
+
+- **Middleware or API gateways:**  
+  Use tools or libraries (e.g., `express-rate-limit` for Node.js or rate limiting settings in Nginx) to restrict the number of requests per IP or per client over a period.
+  
+- **Burst control:**  
+  Consider a “burst” limit to allow short spikes but then slow down if the limit is exceeded.
+
+**Use appropriate timeouts:**
+
+- **Set server/client timeouts:**  
+  Define connection, read, and write timeouts on both the server side and client requests. This helps to avoid hanging connections that can be exploited in DoS attacks.
+  
+- **Configuration:**  
+  Adjust timeout settings in your web server configuration or application-level HTTP client libraries.
+
+**Handle denial of service (DoS) scenarios:**
+
+- **Resource throttling:**  
+  Implement circuit breakers or throttling logic to cut off excessive or malicious requests.
+
+**Monitor for unusual patterns:**
+
+- **Logging and SIEM integration:**  
+  Set up logging for all network interactions and integrate with a Security Information and Event Management (SIEM) system. Tools like Splunk, Graylog, or ELK can help analyze patterns.
+
+**Implement proper firewall rules:**
+
+- **Network firewalls:**  
+  Configure firewalls (hardware or cloud-based security groups) to allow only necessary ports and protocols.
+  
+- **Application firewalls:**  
+  Utilize Web Application Firewalls (WAF) to filter out malicious HTTP requests.
+  
+- **Segmentation:**  
+  Apply network segmentation so that if one segment is compromised, the attacker’s movement is limited.
+
+---
 
 ## Debugging Transport
 
