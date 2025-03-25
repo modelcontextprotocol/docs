@@ -92,6 +92,11 @@
           "icon": "java"
         },
         {
+          "anchor": "C# SDK",
+          "href": "https://github.com/modelcontextprotocol/csharp-sdk",
+          "icon": "square-c"
+        },
+        {
           "anchor": "Kotlin SDK",
           "href": "https://github.com/modelcontextprotocol/kotlin-sdk",
           "icon": "square-k"
