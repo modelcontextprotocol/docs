@@ -23,7 +23,7 @@ The MCP Server is a foundational component in the Model Context Protocol (MCP) a
 
 <Tip> 
 The [Spring-AI MCP Server](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-server-boot-starter-docs.html) integration extends the MCP Java SDK to 
-provide auto-configuration for MCP servdr functionality in Spring Boot applications.
+provide auto-configuration for MCP server functionality in Spring Boot applications.
 </Tip>
 
 The server supports both synchronous and asynchronous APIs, allowing for flexible integration in different application contexts.
@@ -246,7 +246,7 @@ var capabilities = ServerCapabilities.builder()
     .resources(false, true)  // Resource support with list changes notifications
     .tools(true)            // Tool support with list changes notifications
     .prompts(true)          // Prompt support with list changes notifications
-    .logging()              // Enable logging support (enabled by default with loging level INFO)
+    .logging()              // Enable logging support (enabled by default with logging level INFO)
     .build();
 ```
 
@@ -293,7 +293,7 @@ var schema = """
               }
             }
             """;
-var syncToolSpecification = new McpServerFeatures.SyncToolSpecificaiton(
+var syncToolSpecification = new McpServerFeatures.SyncToolSpecification(
     new Tool("calculator", "Basic calculator", schema),
     (exchange, arguments) -> {
         // Tool implementation
@@ -323,7 +323,7 @@ var schema = """
               }
             }
             """;
-var asyncToolSpecification = new McpServerFeatures.AsyncToolSpecificaiton(
+var asyncToolSpecification = new McpServerFeatures.AsyncToolSpecification(
     new Tool("calculator", "Basic calculator", schema),
     (exchange, arguments) -> {
         // Tool implementation
@@ -371,7 +371,7 @@ var asyncResourceSpecification = new McpServerFeatures.asyncResourceSpecificatio
   </Tab>
 </Tabs>
 
-The resource specification compriese of resource definitions and resource read handler.
+The resource specification comprised of resource definitions and resource read handler.
 The resource definition including `name`, `description`, and `MIME type`.
 The first argument of the function that handles resource read requests is an `McpAsyncServerExchange` upon which the server can
 interact with the connected client. 
