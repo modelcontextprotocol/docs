@@ -17,8 +17,8 @@ This page provides an overview of applications that support the Model Context Pr
 | [Continue][Continue]                        | ✅          | ✅        | ✅      | ❌         | ❌    | Full support for all MCP features                                           |
 | [Cursor][Cursor]                            | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [Emacs Mcp][Mcp.el]                         | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools in Emacs.                                                    |
-| [fast-agent][fast-agent]                   | ✅           | ✅        | ✅      | ✅          | ✅     | Full multimodal MCP support, with end-to-end tests |
-| [Firebase Genkit][Genkit]                   | ⚠️          | ✅        | ✅      | ❌         | ❌    | Supports resource list and lookup through tools.                            |
+| [fast-agent][fast-agent]                    | ✅          | ✅        | ✅      | ✅         | ✅    | Full multimodal MCP support, with end-to-end tests                          |
+| [Firebase Genkit][Genkit]                   | ⚠️           | ✅        | ✅      | ❌         | ❌    | Supports resource list and lookup through tools.                            |
 | [GenAIScript][GenAIScript]                  | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [Goose][Goose]                              | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [LibreChat][LibreChat]                      | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools for Agents                                                   |
@@ -33,9 +33,9 @@ This page provides an overview of applications that support the Model Context Pr
 | [Zed][Zed]                                  | ❌          | ✅        | ❌      | ❌         | ❌    | Prompts appear as slash commands                                            |
 | [SpinAI][SpinAI]                            | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools for Typescript AI Agents                                     |
 | [OpenSumi][OpenSumi]                        | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools in OpenSumi                                                  |
-| [Daydreams Agents][Daydreams]              | ✅          | ✅        | ✅      | ❌         | ❌    | Support for drop in Servers to Daydreams agents                             |
-| [Apify MCP Tester][Apify MCP Tester]  | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools |
-
+| [Daydreams Agents][Daydreams]               | ✅          | ✅        | ✅      | ❌         | ❌    | Support for drop in Servers to Daydreams agents                             |
+| [Apify MCP Tester][Apify MCP Tester]        | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools                                                              |
+| [HighlightAI][HighlightAI]                  | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 
 [Claude]: https://claude.ai/download
 [Claude Code]: https://claude.ai/code
@@ -67,6 +67,7 @@ This page provides an overview of applications that support the Model Context Pr
 [Prompts]: https://modelcontextprotocol.io/docs/concepts/prompts
 [Tools]: https://modelcontextprotocol.io/docs/concepts/tools
 [Sampling]: https://modelcontextprotocol.io/docs/concepts/sampling
+[HighlightAI]: https://highlightai.com
 
 ## Client details
 
@@ -298,6 +299,18 @@ It uses plain JavaScript (old-school style) and is hosted on Apify, allowing you
 - Connects to any MCP server via SSE.
 - Works with the [Apify MCP Server](https://apify.com/apify/actors-mcp-server) to interact with one or more Apify [Actors](https://apify.com/store).
 - Dynamically utilizes tools based on context and user queries (if supported by the server).
+
+### HighlightAI
+[HighlightAI](https://highlightai.com) lets you get instant answers about anything you've seen, heard or said. HighlightAI is an desktop app that runs on macOS and Windows.
+
+**Key features:**
+- Local audio and mic transcription: Automatically capture and share meeting notes, saving hours of manual work
+- Hold command anywhere to talk: Control apps, dictate content, and ask questions completely hands-free
+- Follows your actions on any app: Select text anywhere and instantly summarize, translate, or analyze it
+- Use Apps & Your Screen as input: Capture any part of your screen for instant insights and explanations
+- One-Click MCP Server: We take care of the MCP setup, you can set your environment variables and start using it in seconds
+- [Open source bundler](https://github.com/highlight-ing/mcp-bundler): We open sourced our bundler so any client can use it to add MCP support to their app
+- [Public registry](https://mcpservers.com/): We maintain a public registry of MCP servers that you can use in Highlight or your own MCP clients
 
 ## Adding MCP support to your application
 
