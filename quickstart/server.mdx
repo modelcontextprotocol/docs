@@ -765,7 +765,7 @@ For manual MCP Server implementation, refer to the [MCP Server Java SDK document
 
 ### Set up your environment
 
-Use the [Spring Initizer](https://start.spring.io/) to bootstrat the project.
+Use the [Spring Initializer](https://start.spring.io/) to bootstrap the project.
 
 You will need to add the following dependencies:
 
@@ -795,7 +795,7 @@ You will need to add the following dependencies:
   </Tab>
 </Tabs>
 
-Then configure your application by setting the applicaiton properties:
+Then configure your application by setting the application properties:
 
 <CodeGroup>
 
@@ -822,7 +822,7 @@ Now let's dive into building your server.
 
 ### Weather Service
 
-Let's implement a [WeatheService.java](https://github.com/spring-projects/spring-ai-examples/blob/main/model-context-protocol/weather/starter-stdio-server/src/main/java/org/springframework/ai/mcp/sample/server/WeatherService.java) that uses a REST client to query the data from the National Weather Service API:
+Let's implement a [WeatherService.java](https://github.com/spring-projects/spring-ai-examples/blob/main/model-context-protocol/weather/starter-stdio-server/src/main/java/org/springframework/ai/mcp/sample/server/WeatherService.java) that uses a REST client to query the data from the National Weather Service API:
 
 ```java
 @Service
@@ -865,12 +865,12 @@ public class WeatherService {
 }
 ```
 
-The `@Service` annotation with auto-register the service in your applicaiton context.
+The `@Service` annotation with auto-register the service in your application context.
 The Spring AI `@Tool` annotation, making it easy to create and maintain MCP tools.
 
 The auto-configuration will automatically register these tools with the MCP server. 
 
-### Create your Boot Applicaiton
+### Create your Boot Application
 
 ```java
 @SpringBootApplication
@@ -887,7 +887,7 @@ public class McpServerApplication {
 }
 ```
 
-Uses the the `MethodToolCallbackProvider` utils to convert the `@Tools` into actionalble callbackes used by the MCP server.
+Uses the the `MethodToolCallbackProvider` utils to convert the `@Tools` into actionable callbacks used by the MCP server.
 
 ### Running the server
 
@@ -1011,7 +1011,7 @@ mcpClient.closeGracefully();
 
 ### Use MCP Client Boot Starter
 
-Create a new boot starter applicaiton using the `spring-ai-mcp-client-spring-boot-starter` dependency:
+Create a new boot starter application using the `spring-ai-mcp-client-spring-boot-starter` dependency:
 
 ```xml
 <dependency>
@@ -1021,13 +1021,13 @@ Create a new boot starter applicaiton using the `spring-ai-mcp-client-spring-boo
 ```
 
 and set the `spring.ai.mcp.client.stdio.servers-configuration` property to point to your `claude_desktop_config.json`.
-You can re-use the existing Anthropic Destop configuration:
+You can re-use the existing Anthropic Desktop configuration:
 
 ```properties
 spring.ai.mcp.client.stdio.servers-configuration=file:PATH/TO/claude_desktop_config.json
 ```
 
-When you start your client applicaiton, the auto-configuration will create, automatically MCP clients from the claude_desktop_config.json.
+When you start your client application, the auto-configuration will create, automatically MCP clients from the claude_desktop_config.json.
 
 For more information, see the [MCP Client Boot Starters](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-server-boot-client-docs.html) reference documentation.
 
