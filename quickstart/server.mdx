@@ -775,7 +775,7 @@ You will need to add the following dependencies:
   <dependencies>
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-mcp-server-spring-boot-starter</artifactId>
+            <artifactId>spring-ai-starter-mcp-server</artifactId>
         </dependency>
 
         <dependency>
@@ -788,7 +788,7 @@ You will need to add the following dependencies:
   <Tab title="Gradle">
   ```groovy
   dependencies {
-    implementation platform("org.springframework.ai:spring-ai-mcp-server-spring-boot-starter")
+    implementation platform("org.springframework.ai:spring-ai-starter-mcp-server")
     implementation platform("org.springframework:spring-web")   
   }
   ```
@@ -1011,12 +1011,12 @@ mcpClient.closeGracefully();
 
 ### Use MCP Client Boot Starter
 
-Create a new boot starter applicaiton using the `spring-ai-mcp-client-spring-boot-starter` dependency:
+Create a new boot starter applicaiton using the `spring-ai-starter-mcp-client` dependency:
 
 ```xml
 <dependency>
     <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-mcp-client-spring-boot-starter</artifactId>
+    <artifactId>spring-ai-starter-mcp-client</artifactId>
 </dependency>
 ```
 
