@@ -23,6 +23,7 @@ This page provides an overview of applications that support the Model Context Pr
 | [Goose][Goose]                              | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [LibreChat][LibreChat]                      | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools for Agents                                                   |
 | [mcp-agent][mcp-agent]                      | ❌          | ❌        | ✅      | ⚠️         | ❌    | Supports tools, server connection management, and agent workflows.          |
+| [Open-MCP-Client][Open-MCP-Client]          | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools with multi-provider LLM integration.                         |
 | [oterm][oterm]                              | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [Roo Code][Roo Code]                        | ✅          | ❌        | ✅      | ❌         | ❌    | Supports tools and resources.                                               |
 | [Sourcegraph Cody][Cody]                    | ✅          | ❌        | ❌      | ❌         | ❌    | Supports resources through OpenCTX                                          |
@@ -63,6 +64,7 @@ This page provides an overview of applications that support the Model Context Pr
 [SpinAI]: https://spinai.dev
 [OpenSumi]: https://github.com/opensumi/core
 [oterm]: https://github.com/ggozad/oterm
+[Open-MCP-Client]: https://github.com/GongRzhe/Open-MCP-Client
 [Resources]: https://modelcontextprotocol.io/docs/concepts/resources
 [Prompts]: https://modelcontextprotocol.io/docs/concepts/prompts
 [Tools]: https://modelcontextprotocol.io/docs/concepts/tools
@@ -190,6 +192,17 @@ Programmatically assemble prompts for LLMs using [GenAIScript](https://microsoft
 - Expose tools from multiple servers to an LLM.
 - Implements every pattern defined in [Building Effective Agents](https://www.anthropic.com/research/building-effective-agents).
 - Supports workflow pause/resume signals, such as waiting for human feedback.
+
+### Open-MCP-Client
+[Open-MCP-Client](https://github.com/GongRzhe/Open-MCP-Client) is a flexible chatbot framework that connects to multiple LLM providers and extends their capabilities with tools using the Model Context Protocol.
+
+**Key features:**
+- Multiple LLM provider support (OpenAI, Anthropic, Groq, Gemini, Ollama, OpenRoute)
+- Dual interface options: command-line and web-based
+- Extensible MCP tool ecosystem for web search, GitHub, Gmail, web browsing, and more
+- Enterprise-grade reliability with circuit breakers and automatic retries
+- Token management and performance monitoring across providers
+- Asynchronous architecture for handling multiple operations concurrently
 
 ### oterm
 [oterm] is a terminal client for Ollama allowing users to create chats/agents.
