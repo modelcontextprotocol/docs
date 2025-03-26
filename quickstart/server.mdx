@@ -775,7 +775,7 @@ You will need to add the following dependencies:
   <dependencies>
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-mcp-server-spring-boot-starter</artifactId>
+            <artifactId>spring-ai-starter-mcp-server</artifactId>
         </dependency>
 
         <dependency>
@@ -788,7 +788,7 @@ You will need to add the following dependencies:
   <Tab title="Gradle">
   ```groovy
   dependencies {
-    implementation platform("org.springframework.ai:spring-ai-mcp-server-spring-boot-starter")
+    implementation platform("org.springframework.ai:spring-ai-starter-mcp-server")
     implementation platform("org.springframework:spring-web")   
   }
   ```
@@ -1011,12 +1011,12 @@ mcpClient.closeGracefully();
 
 ### Use MCP Client Boot Starter
 
-Create a new boot starter applicaiton using the `spring-ai-mcp-client-spring-boot-starter` dependency:
+Create a new boot starter applicaiton using the `spring-ai-starter-mcp-client` dependency:
 
 ```xml
 <dependency>
     <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-mcp-client-spring-boot-starter</artifactId>
+    <artifactId>spring-ai-starter-mcp-client</artifactId>
 </dependency>
 ```
 
@@ -1090,7 +1090,7 @@ Alternatively, you can create a Kotlin application using the [IntelliJ IDEA proj
 After creating the project, add the following dependencies:
 <CodeGroup>
 ```kotlin build.gradle.kts
-val mcpVersion = "0.3.0"
+val mcpVersion = "0.4.0"
 val slf4jVersion = "2.0.9"
 val ktorVersion = "3.1.1"
 
@@ -1164,7 +1164,7 @@ fun `run mcp server`() {
     runBlocking {
         server.connect(transport)
         val done = Job()
-        server.onCloseCallback = {
+        server.onClose {
             done.complete()
         }
         done.join()
@@ -1255,12 +1255,12 @@ The tool execution handler is responsible for actually executing the logic of ea
 // Create an HTTP client with a default request configuration and JSON content negotiation
 val httpClient = HttpClient {
     defaultRequest {
-    url("https://api.weather.gov")
-    headers {
-        append("Accept", "application/geo+json")
-        append("User-Agent", "WeatherApiClient/1.0")
-    }
-    contentType(ContentType.Application.Json)
+        url("https://api.weather.gov")
+        headers {
+            append("Accept", "application/geo+json")
+            append("User-Agent", "WeatherApiClient/1.0")
+        }
+        contentType(ContentType.Application.Json)
     }
     // Install content negotiation plugin for JSON serialization/deserialization
     install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
@@ -1404,6 +1404,241 @@ This tells Claude for Desktop:
 1. There's an MCP server named "weather"
 2. Launch it by running `java -jar /ABSOLUTE/PATH/TO/PARENT/FOLDER/weather/build/libs/weather-0.1.0-all.jar`
 
+Save the file, and restart **Claude for Desktop**.
+
+</Tab>
+
+<Tab title='C#'>
+Let's get started with building our weather server! [You can find the complete code for what we'll be building here.](https://github.com/modelcontextprotocol/csharp-sdk/tree/main/samples/QuickstartWeatherServer)
+
+### Prerequisite knowledge
+This quickstart assumes you have familiarity with:
+- C#
+- LLMs like Claude
+- .NET 8 or higher
+
+### System requirements
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or higher installed.
+
+### Set up your environment
+First, let's install `dotnet` if you haven't already. You can download `dotnet` from [official Microsoft .NET website](https://dotnet.microsoft.com/download/). Verify your `dotnet` installation:
+```bash
+dotnet --version
+```
+Now, let's create and set up your project:
+<CodeGroup>
+```bash MacOS/Linux
+# Create a new directory for our project
+mkdir weather
+cd weather
+# Initialize a new C# project
+dotnet new console
+```
+
+```powershell Windows
+# Create a new directory for our project
+mkdir weather
+cd weather
+# Initialize a new C# project
+dotnet new console
+```
+</CodeGroup>
+After running `dotnet new console`, you will be presented with a new C# project.
+You can open the project in your favorite IDE, such as [Visual Studio](https://visualstudio.microsoft.com/) or [Rider](https://www.jetbrains.com/rider/).
+Alternatively, you can create a C# application using the [Visual Studio project wizard](https://learn.microsoft.com/en-us/visualstudio/get-started/csharp/tutorial-console?view=vs-2022).
+After creating the project, add NuGet package for the Model Context Protocol SDK and hosting:
+
+```bash
+# Add the Model Context Protocol SDK NuGet package
+dotnet add package ModelContextProtocol --preview
+# Add the .NET Hosting NuGet package
+dotnet add package Microsoft.Extensions.Hosting
+```
+Now let’s dive into building your server.
+
+## Building your server
+
+Open the `Program.cs` file in your project and replace its contents with the following code:
+
+```csharp
+using Microsoft.Extensions.Hosting;
+using ModelContextProtocol;
+
+var builder = Host.CreateEmptyApplicationBuilder(settings: null);
+builder.Services.AddMcpServer()
+    .WithStdioServerTransport()
+    .WithToolsFromAssembly();
+
+var app = builder.Build();
+
+await app.RunAsync();
+```
+<Note>
+When creating the `ApplicationHostBuilder`, ensure you use `CreateEmptyApplicationBuilder` instead of `CreateDefaultBuilder`. This ensures that the server does not write any additional messages to the console. This is only neccessary for servers using STDIO transport.
+</Note>
+
+This code sets up a basic console application that uses the Model Context Protocol SDK to create an MCP server with standard I/O transport.
+
+### Weather API helper functions
+Next, define a class with the tool execution handlers for querying and converting responses from the National Weather Service API:
+
+```csharp
+using ModelContextProtocol.Server;
+using System.ComponentModel;
+using System.Net.Http.Headers;
+using System.Text.Json;
+
+namespace QuickstartWeatherServer.Tools;
+
+[McpServerToolType]
+public static class WeatherTools
+{
+    [McpServerTool, Description("Get weather alerts for a US state.")]
+    public static async Task<string> GetAlerts(
+        [Description("The US state to get alerts for.")] string state)
+    {
+        using HttpClient client = GetWeatherClient();
+
+        var response = await client.GetAsync($"/alerts/active/area/{state}");
+
+        var json = await response.Content.ReadAsStringAsync();
+        var jsonElement = JsonSerializer.Deserialize<JsonElement>(json);
+        var alerts = jsonElement.GetProperty("features").EnumerateArray();
+
+        if (!alerts.Any())
+        {
+            return "No active alerts for this state.";
+        }
+
+        // Process the alerts and return a formatted string
+        var alertMessages = new List<string>();
+        foreach (var alert in alerts)
+        {
+            JsonElement properties = alert.GetProperty("properties");
+            alertMessages.Add($"""
+                    Event: {properties.GetProperty("event").GetString()}
+                    Area: {properties.GetProperty("areaDesc").GetString()}
+                    Severity: {properties.GetProperty("severity").GetString()}
+                    Description: {properties.GetProperty("description").GetString()}
+                    Instruction: {properties.GetProperty("instruction").GetString()}
+                    """);
+        }
+        return string.Join("\n---\n", alertMessages);
+    }
+
+    [McpServerTool, Description("Get weather forecast for a location.")]
+    public static async Task<string> GetForecast(
+        [Description("Latitude of the location.")] double latitude,
+        [Description("Longitude of the location.")] double longitude)
+    {
+        using HttpClient client = GetWeatherClient();
+        var response = await client.GetAsync($"/points/{latitude},{longitude}");
+        if (!response.IsSuccessStatusCode)
+        {
+            return "Failed to retrieve forecast.";
+        }
+
+        var json = await response.Content.ReadAsStringAsync();
+        var jsonElement = JsonSerializer.Deserialize<JsonElement>(json);
+        var periods = jsonElement.GetProperty("properties").GetProperty("periods").EnumerateArray();
+        // Process the forecast and return a formatted string
+        var forecastMessages = new List<string>();
+        foreach (var period in periods)
+        {
+            forecastMessages.Add($"""
+                    {period.GetProperty("name").GetString()}
+                    Temperature: {period.GetProperty("temperature").GetInt32()}°F
+                    Wind: {period.GetProperty("windSpeed").GetString()} {period.GetProperty("windDirection").GetString()}
+                    Forecast: {period.GetProperty("detailedForecast").GetString()}
+                    """);
+        }
+        return string.Join("\n---\n", forecastMessages);
+    }
+
+    private static HttpClient GetWeatherClient()
+    {
+        var client = new HttpClient() { BaseAddress = new Uri("https://api.weather.gov") };
+        client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("weather-tool", "1.0"));
+        return client;
+    }
+}
+```
+
+### Running the server
+Finally, run the server using the following command:
+
+```bash
+dotnet run
+```
+This will start the server and listen for incoming requests on standard input/output.
+
+## Testing your server with Claude for Desktop
+<Note>
+Claude for Desktop is not yet available on Linux. Linux users can proceed to the [Building a client](/quickstart/client) tutorial to build an MCP client that connects to the server we just built.
+</Note>
+
+First, make sure you have Claude for Desktop installed. [You can install the latest version
+here.](https://claude.ai/download) If you already have Claude for Desktop, **make sure it's updated to the latest version.**
+We'll need to configure Claude for Desktop for whichever MCP servers you want to use. To do this, open your Claude for Desktop App configuration at `~/Library/Application Support/Claude/claude_desktop_config.json` in a text editor. Make sure to create the file if it doesn't exist.
+For example, if you have [VS Code](https://code.visualstudio.com/) installed:
+<Tabs>
+<Tab title="MacOS/Linux">
+```bash
+code ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+</Tab>
+<Tab title="Windows">
+```powershell
+code $env:AppData\Claude\claude_desktop_config.json
+```
+</Tab>
+</Tabs>
+
+You'll then add your servers in the `mcpServers` key. The MCP UI elements will only show up in Claude for Desktop if at least one server is properly configured.
+In this case, we'll add our single weather server like so:
+
+<Tabs>
+<Tab title="MacOS/Linux">
+```json
+{
+    "mcpServers": {
+        "weather": {
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "/ABSOLUTE/PATH/TO/PROJECT",
+                "--no-build"
+            ]
+        }
+    }
+}
+```
+
+</Tab>
+
+<Tab title="Windows">
+```json
+{
+    "mcpServers": {
+        "weather": {
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "C:\\ABSOLUTE\\PATH\\TO\\PROJECT",
+                "--no-build"
+            ]
+        }
+    }
+}
+```
+</Tab>
+</Tabs>
+
+This tells Claude for Desktop:
+1. There's an MCP server named "weather"
+2. Launch it by running `dotnet run /ABSOLUTE/PATH/TO/PROJECT`
 Save the file, and restart **Claude for Desktop**.
 
 </Tab>
