@@ -1384,7 +1384,7 @@ cd QuickstartClient
 
 Then, add the required dependencies to your project:
 ```bash
-dotnet add package ModelContextProtocol --preview
+dotnet add package ModelContextProtocol --prerelease
 dotnet add package Anthropic.SDK
 dotnet add package Microsoft.Extensions.Hosting
 ```
@@ -1423,10 +1423,10 @@ var (command, arguments) = args switch
     _ => throw new NotSupportedException("An unsupported server script was provided. Supported scripts are .py, .js, or .csproj")
 };
 
-var mcpClient = await McpClientFactory.CreateAsync(new()
+await using var mcpClient = await McpClientFactory.CreateAsync(new()
 {
-    Id = "demo-client",
-    Name = "Demo Client",
+    Id = "demo-server",
+    Name = "Demo Server",
     TransportType = TransportTypes.StdIo,
     TransportOptions = new()
     {
@@ -1455,7 +1455,7 @@ This configures a MCP client that will connect to a server that is provided as a
 Now let's add the core functionality for processing queries and handling tool calls:
 
 ```csharp
-IChatClient anthropicClient = new AnthropicClient(new APIAuthentication(builder.Configuration["ANTHROPIC_API_KEY"]))
+using IChatClient anthropicClient = new AnthropicClient(new APIAuthentication(builder.Configuration["ANTHROPIC_API_KEY"]))
     .Messages
     .AsBuilder()
     .UseFunctionInvocation()
@@ -1465,7 +1465,7 @@ var options = new ChatOptions
 {
     MaxOutputTokens = 1000,
     ModelId = "claude-3-5-sonnet-20241022",
-    Tools = [.. tools.Cast<AITool>()]
+    Tools = [.. tools]
 };
 
 while (true)
@@ -1484,16 +1484,14 @@ while (true)
         break;
     }
 
-    var response = await anthropicClient.GetResponseAsync(query, options);
+    var response = anthropicClient.GetStreamingResponseAsync(query, options);
 
-    foreach (var message in response.Messages)
+    await foreach (var message in response)
     {
-        Console.WriteLine(message.Text);
+        Console.Write(message.Text);
     }
+    Console.WriteLine();
 }
-
-anthropicClient.Dispose();
-await mcpClient.DisposeAsync();
 ```
 
 ## Key Components Explained
