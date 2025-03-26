@@ -23,7 +23,8 @@ This page provides an overview of applications that support the Model Context Pr
 | [Goose][Goose]                              | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [LibreChat][LibreChat]                      | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools for Agents                                                   |
 | [mcp-agent][mcp-agent]                      | ❌          | ❌        | ✅      | ⚠️         | ❌    | Supports tools, server connection management, and agent workflows.          |
-| [oterm][oterm]                              | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
+| [Microsoft Copilot Studio]         | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools                                                              |
+| [oterm][oterm]                              | ❌          | ✅        | ✅      | ❌         | ❌    | Supports tools and prompts.                                                 |
 | [Roo Code][Roo Code]                        | ✅          | ❌        | ✅      | ❌         | ❌    | Supports tools and resources.                                               |
 | [Sourcegraph Cody][Cody]                    | ✅          | ❌        | ❌      | ❌         | ❌    | Supports resources through OpenCTX                                          |
 | [Superinterface][Superinterface]            | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools                                                              |
@@ -36,6 +37,7 @@ This page provides an overview of applications that support the Model Context Pr
 | [Daydreams Agents][Daydreams]               | ✅          | ✅        | ✅      | ❌         | ❌    | Support for drop in Servers to Daydreams agents                             |
 | [Apify MCP Tester][Apify MCP Tester]        | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools                                                              |
 | [HighlightAI][HighlightAI]                  | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
+
 
 [Claude]: https://claude.ai/download
 [Claude Code]: https://claude.ai/code
@@ -68,6 +70,7 @@ This page provides an overview of applications that support the Model Context Pr
 [Tools]: https://modelcontextprotocol.io/docs/concepts/tools
 [Sampling]: https://modelcontextprotocol.io/docs/concepts/sampling
 [HighlightAI]: https://highlightai.com
+[Microsoft Copilot Studio]: https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp
 
 ## Client details
 
@@ -191,6 +194,14 @@ Programmatically assemble prompts for LLMs using [GenAIScript](https://microsoft
 - Expose tools from multiple servers to an LLM.
 - Implements every pattern defined in [Building Effective Agents](https://www.anthropic.com/research/building-effective-agents).
 - Supports workflow pause/resume signals, such as waiting for human feedback.
+
+### Microsoft Copilot Studio
+[Microsoft Copilot Studio]  is a robust SaaS platform designed for building custom AI-driven applications and intelligent agents, empowering developers to create, deploy, and manage sophisticated AI solutions.
+
+**Key features:**
+- Support for MCP tools
+- Extend Copilot Studio agents with MCP servers
+- Leveraging Microsoft unified, governed, and secure API management solutions 
 
 ### oterm
 [oterm] is a terminal client for Ollama allowing users to create chats/agents.
