@@ -37,7 +37,8 @@ This page provides an overview of applications that support the Model Context Pr
 | [SpinAI][SpinAI]                            | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools for Typescript AI Agents                                     |
 | [OpenSumi][OpenSumi]                        | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools in OpenSumi                                                  |
 | [Daydreams Agents][Daydreams]              | ✅          | ✅        | ✅      | ❌         | ❌    | Support for drop in Servers to Daydreams agents                             |
-| [Apify MCP Tester][Apify MCP Tester]  | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools |
+| [Apify MCP Tester][Apify MCP Tester]        | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools |
+| [WhatsMPC][WhatsMPC]                        | ❌         | ❌        | ✅       | ❌         | ❌    | Supports tools                                                              |
 
 
 
@@ -74,6 +75,7 @@ This page provides an overview of applications that support the Model Context Pr
 [Sampling]: https://modelcontextprotocol.io/docs/concepts/sampling
 [Microsoft Copilot Studio]: https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp
 [VS Code]: https://code.visualstudio.com/
+[WhatsMPC]: https://wassist.app/mcp
 
 ## Client details
 
@@ -323,6 +325,16 @@ It uses plain JavaScript (old-school style) and is hosted on Apify, allowing you
 - Connects to any MCP server via SSE.
 - Works with the [Apify MCP Server](https://apify.com/apify/actors-mcp-server) to interact with one or more Apify [Actors](https://apify.com/store).
 - Dynamically utilizes tools based on context and user queries (if supported by the server).
+
+
+### WhatsMPC
+[WhatsMPC](https://wassist.app/mcp) is an MCP client for WhatsApp. WhatsMCP lets you interact with your AI stack from the comfort of a WhatsApp chat.
+
+**Key features:**
+- Supports MCP tools
+- SSE transport only
+- Chat flow management for WhatsApp messages
+- One click setup for connecting
 
 ## Adding MCP support to your application
 
