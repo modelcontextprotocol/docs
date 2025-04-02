@@ -102,6 +102,16 @@
           "icon": "square-c"
         },
         {
+          "anchor": "Swift SDK",
+          "href": "https://github.com/modelcontextprotocol/swift-sdk",
+          "icon": "swift"
+        },
+        {
+          "anchor": "Rust SDK",
+          "href": "https://github.com/modelcontextprotocol/rust-sdk",
+          "icon": "rust"
+        },
+        {
           "anchor": "Specification",
           "href": "https://spec.modelcontextprotocol.io",
           "icon": "book"
