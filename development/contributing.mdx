@@ -8,3 +8,35 @@ We welcome contributions from the community! Please review our [contributing gui
 All contributors must adhere to our [Code of Conduct](https://github.com/modelcontextprotocol/.github/blob/main/CODE_OF_CONDUCT.md).
 
 For questions and discussions, please use [GitHub Discussions](https://github.com/orgs/modelcontextprotocol/discussions).
+
+## MCP SDK Developer Guidelines
+
+### Focus Areas
+
+When building an MCP SDK, prioritize these three layers:
+
+1. **Protocol Layer** - JSON-RPC message handling and transport
+2. **API Layer** - Direct server/client interfaces with callbacks
+3. **Ergonomic Layer** - Language-specific patterns and abstractions
+
+### Minimum Requirements
+
+For a functional MCP SDK:
+
+- Implement STDIO transport (HTTP+SSE optional but recommended)
+- Support all server features (resources, prompts, tools)
+- Handle lifecycle management (initialization, operation, shutdown)
+- Provide clear error handling
+
+### Extended Requirements
+
+- Client-side features (roots, sampling)
+- Complex authentication mechanisms
+- Extensive optimizations
+
+### Design Principles
+
+- Make simple things easy and complex things possible
+- Follow language conventions for your target platform
+- Provide good examples and documentation for common use cases
+- Design with extensibility in mind as MCP evolves
