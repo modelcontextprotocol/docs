@@ -52,7 +52,7 @@ Open up the configuration file in any text editor. Replace the file contents wit
 {
   "mcpServers": {
     "filesystem": {
-      "command": "npx",
+      "command": "/Users/username/path/to/npx",
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
@@ -69,7 +69,7 @@ Open up the configuration file in any text editor. Replace the file contents wit
 {
   "mcpServers": {
     "filesystem": {
-      "command": "npx",
+      "command": "C:\\Users\\username\\path\\to\\npx",
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
@@ -83,17 +83,26 @@ Open up the configuration file in any text editor. Replace the file contents wit
 </Tab>
 </Tabs>
 
-Make sure to replace `username` with your computer's username. The paths should point to valid directories that you want Claude to be able to access and modify. It's set up to work for Desktop and Downloads, but you can add more paths as well.
+Make sure to replace: 
+- `username` with your computer's username. 
+- `path/to` with your path prefix to the npx binary
+
+The paths listed in `args` should point to valid directories that you want Claude to be able to access and modify. It's set up to work for Desktop and Downloads, but you can add more paths as well.
 
 You will also need [Node.js](https://nodejs.org) on your computer for this to run properly. To verify you have Node installed, open the command line on your computer.
 - On macOS, open the Terminal from your Applications folder
 - On Windows, press Windows + R, type "cmd", and press Enter
 
-Once in the command line, verify you have Node installed by entering in the following command:
+Once in the command line, verify you have Node installed by entering the following command:
 ```bash
 node --version
 ```
 If you get an error saying "command not found" or "node is not recognized", download Node from [nodejs.org](https://nodejs.org/).
+
+You will also need to grab the full path to the command for Claude Desktop to ensure it is calling the right executable. The `which` command will tell you its path.
+```bash
+which npx
+```
 
 <Tip>
 **How does the configuration file work?**
