@@ -24,6 +24,7 @@ This page provides an overview of applications that support the Model Context Pr
 | [Goose][Goose]                              | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [LibreChat][LibreChat]                      | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools for Agents                                                   |
 | [mcp-agent][mcp-agent]                      | ❌          | ❌        | ✅      | ⚠️         | ❌    | Supports tools, server connection management, and agent workflows.          |
+| [mcp-use][mcp-use]                          | ✅          | ❌        | ✅      | ❌         | ❌    | Support tools, resources, stdio & http connection, local llms-agents.       | 
 | [Microsoft Copilot Studio]         | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools                                                              |
 | [oterm][oterm]                              | ❌          | ✅        | ✅      | ❌         | ❌    | Supports tools and prompts.                                                 |
 | [Roo Code][Roo Code]                        | ✅          | ❌        | ✅      | ❌         | ❌    | Supports tools and resources.                                               |
@@ -57,6 +58,7 @@ This page provides an overview of applications that support the Model Context Pr
 [BeeAI Framework]: https://i-am-bee.github.io/beeai-framework
 [fast-agent]: https://github.com/evalstate/fast-agent
 [mcp-agent]: https://github.com/lastmile-ai/mcp-agent
+[mcp-use]: https://github.com/pietrozullo/mcp-use
 [Mcp.el]: https://github.com/lizqwerscott/mcp.el
 [Roo Code]: https://roocode.com
 [Goose]: https://block.github.io/goose/docs/goose-architecture/#interoperability-with-extensions
@@ -195,6 +197,15 @@ Programmatically assemble prompts for LLMs using [GenAIScript](https://microsoft
 - Expose tools from multiple servers to an LLM.
 - Implements every pattern defined in [Building Effective Agents](https://www.anthropic.com/research/building-effective-agents).
 - Supports workflow pause/resume signals, such as waiting for human feedback.
+
+### mcp-use
+[mcp-use] is an open source library to very easily connect agents to MCP servers both locally and remotely.
+
+**Key features:**
+- Very simple interface to connect agents to MCPs.
+- Support the creation of custom agents, workflows.
+- Supports connection to multiple MCP servers simultaneously.
+- Supports all langchain supported models, also locally.
 
 ### Microsoft Copilot Studio
 [Microsoft Copilot Studio]  is a robust SaaS platform designed for building custom AI-driven applications and intelligent agents, empowering developers to create, deploy, and manage sophisticated AI solutions.
