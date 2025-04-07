@@ -21,6 +21,7 @@ This page provides an overview of applications that support the Model Context Pr
 | [fast-agent][fast-agent]                   | ✅           | ✅        | ✅      | ✅          | ✅     | Full multimodal MCP support, with end-to-end tests |
 | [Genkit][Genkit]                            | ⚠️          | ✅        | ✅      | ❌         | ❌    | Supports resource list and lookup through tools.                            |
 | [GenAIScript][GenAIScript]                  | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
+| [GitHub Copilot][GitHub Copilot]            | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [Goose][Goose]                              | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [LibreChat][LibreChat]                      | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools for Agents                                                   |
 | [mcp-agent][mcp-agent]                      | ❌          | ❌        | ✅      | ⚠️         | ❌    | Supports tools, server connection management, and agent workflows.          |
@@ -72,6 +73,7 @@ This page provides an overview of applications that support the Model Context Pr
 [Tools]: https://modelcontextprotocol.io/docs/concepts/tools
 [Sampling]: https://modelcontextprotocol.io/docs/concepts/sampling
 [Microsoft Copilot Studio]: https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp
+[GitHub Copilot]: https://docs.github.com/en/copilot/customizing-copilot/extending-copilot-chat-with-mcp
 
 ## Client details
 
@@ -177,6 +179,15 @@ Programmatically assemble prompts for LLMs using [GenAIScript](https://microsoft
 - MCPs can be installed directly via the [extensions directory](https://block.github.io/goose/v1/extensions/), CLI, or UI.
 - Goose allows you to extend its functionality by [building your own MCP servers](https://block.github.io/goose/docs/tutorials/custom-extensions).
 - Includes built-in tools for development, web scraping, automation, memory, and integrations with JetBrains and Google Drive.
+
+### GitHub Copilot
+[GitHub Copilot](https://github.com/features/copilot) is an AI-powered coding assistant designed to help developers write code faster, more efficiently, and with less effort. It acts as an "AI pair programmer," providing contextualized assistance throughout the software development lifecycle. Copilot can suggest code completions, generate entire functions, explain code, debug issues, and even create unit tests based on the context of your project.
+
+**Key features:**
+- Agent Mode Integration: MCP allows Copilot to utilize external tools dynamically, such as GitHub repositories, databases, or web services.
+- Open Source MCP Server: GitHub has released an open-source MCP server, enabling developers to add GitHub functionalities to any LLM tool supporting MCP.
+- Customization: Developers can create new MCP servers tailored to specific needs, further extending Copilot's utility.
+- Cross-Platform Compatibility: MCP servers are compatible with multiple AI clients like Claude and Cursor, making it versatile across platforms.
 
 ### LibreChat
 [LibreChat](https://github.com/danny-avila/LibreChat) is an open-source, customizable AI chat UI that supports multiple AI providers, now including MCP integration.
