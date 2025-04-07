@@ -37,6 +37,7 @@ This page provides an overview of applications that support the Model Context Pr
 | [OpenSumi][OpenSumi]                        | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools in OpenSumi                                                  |
 | [Daydreams Agents][Daydreams]              | ✅          | ✅        | ✅      | ❌         | ❌    | Support for drop in Servers to Daydreams agents                             |
 | [Apify MCP Tester][Apify MCP Tester]  | ❌         | ❌         | ✅       | ❌          | ❌     | Supports tools |
+| [AgentAI][AgentAI]                          | ❌         | ❌         | ✅       | ❌          | ❌     | Agent Library written in Rust with tools support |
 
 
 
@@ -72,6 +73,7 @@ This page provides an overview of applications that support the Model Context Pr
 [Tools]: https://modelcontextprotocol.io/docs/concepts/tools
 [Sampling]: https://modelcontextprotocol.io/docs/concepts/sampling
 [Microsoft Copilot Studio]: https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp
+[AgentAI]: https://github.com/AdamStrojek/rust-agentai
 
 ## Client details
 
@@ -148,7 +150,7 @@ Claude Code is an interactive agentic coding tool from Anthropic that helps you 
 
 **Key features:**
 - PDF and Image support, based on MCP Native types
-- Interactive front-end to develop and diagnose Agent applications, including passthrough and playback simulators 
+- Interactive front-end to develop and diagnose Agent applications, including passthrough and playback simulators
 - Built in support for "Building Effective Agents" workflows.
 - Deploy Agents as MCP Servers
 
@@ -202,7 +204,7 @@ Programmatically assemble prompts for LLMs using [GenAIScript](https://microsoft
 **Key features:**
 - Support for MCP tools
 - Extend Copilot Studio agents with MCP servers
-- Leveraging Microsoft unified, governed, and secure API management solutions 
+- Leveraging Microsoft unified, governed, and secure API management solutions
 
 ### oterm
 [oterm] is a terminal client for Ollama allowing users to create chats/agents.
@@ -311,6 +313,18 @@ It uses plain JavaScript (old-school style) and is hosted on Apify, allowing you
 - Connects to any MCP server via SSE.
 - Works with the [Apify MCP Server](https://apify.com/apify/actors-mcp-server) to interact with one or more Apify [Actors](https://apify.com/store).
 - Dynamically utilizes tools based on context and user queries (if supported by the server).
+
+### AgentAI
+
+[AgentAI](https://github.com/AdamStrojek/rust-agentai) is a Rust library designed to simplify the creation of AI agents. The library includes seamless integration with MCP Servers.
+
+[Example of MCP Server integration](https://github.com/AdamStrojek/rust-agentai/blob/master/examples/tools_mcp.rs)
+
+**Key features:**
+- Multi-LLM – We support most LLM APIs (OpenAI, Anthropic, Gemini, Ollama, and all OpenAI API Compatible).
+- Built-in support for MCP Servers.
+- Create agentic flows in a type- and memory-safe language like Rust.
+
 
 ## Adding MCP support to your application
 
