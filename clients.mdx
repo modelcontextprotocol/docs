@@ -10,25 +10,29 @@ This page provides an overview of applications that support the Model Context Pr
 | Client                                      | [Resources] | [Prompts] | [Tools] | [Sampling] | Roots | Notes                                                                        |
 |---------------------------------------------|-------------|------------|---------|------------|--------|-----------------------------------------------------------------------------|
 | [Claude Desktop App][Claude]                | ✅          | ✅        | ✅      | ❌         | ❌    | Full support for all MCP features                                           |
-| [Claude Code][Claude Code]                  | ❌          | ✅        | ✅      | ❌         | ❌    | Supports prompts and tools                                                  |
+| [Claude Code][Claude Code]                  | ❌          | ✅        | ✅      | ❌         | ✅    | Supports prompts, tools, and roots                                          |
 | [5ire][5ire]                                | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [BeeAI Framework][BeeAI Framework]          | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools in agentic workflows.                                        |
 | [Cline][Cline]                              | ✅          | ❌        | ✅      | ❌         | ❌    | Supports tools and resources.                                               |
 | [Continue][Continue]                        | ✅          | ✅        | ✅      | ❌         | ❌    | Full support for all MCP features                                           |
+| [Copilot-MCP][CopilotMCP]                   | ✅          | ❌        | ✅      | ❌         | ❌    | Supports tools and resources.                                               |
 | [Cursor][Cursor]                            | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [Emacs Mcp][Mcp.el]                         | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools in Emacs.                                                    |
 | [fast-agent][fast-agent]                    | ✅          | ✅        | ✅      | ✅         | ✅    | Full multimodal MCP support, with end-to-end tests |
 | [Firebase Genkit][Genkit]                   | ⚠️          | ✅        | ✅      | ❌         | ❌    | Supports resource list and lookup through tools.                            |
 | [FLUJO][FLUJO]                              | ⚠️          | ✅        | ✅      | ❌         | ❌    | Supports tools, prompts, and resources within a server.                     |
+| [Genkit][Genkit]                            | ⚠️          | ✅        | ✅      | ❌         | ❌    | Supports resource list and lookup through tools.                            |
 | [GenAIScript][GenAIScript]                  | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [Goose][Goose]                              | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [LibreChat][LibreChat]                      | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools for Agents                                                   |
 | [mcp-agent][mcp-agent]                      | ❌          | ❌        | ✅      | ⚠️         | ❌    | Supports tools, server connection management, and agent workflows.          |
 | [Microsoft Copilot Studio]         | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools                                                              |
-| [oterm][oterm]                              | ❌          | ✅        | ✅      | ❌         | ❌    | Supports tools and prompts.                                                 || [Roo Code][Roo Code]                        | ✅          | ❌        | ✅      | ❌         | ❌    | Supports tools and resources.                                               |
+| [oterm][oterm]                              | ❌          | ✅        | ✅      | ❌         | ❌    | Supports tools and prompts.                                                 |
+| [Roo Code][Roo Code]                        | ✅          | ❌        | ✅      | ❌         | ❌    | Supports tools and resources.                                               |
 | [Sourcegraph Cody][Cody]                    | ✅          | ❌        | ❌      | ❌         | ❌    | Supports resources through OpenCTX                                          |
 | [Superinterface][Superinterface]            | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools                                                              |
 | [TheiaAI/TheiaIDE][TheiaAI/TheiaIDE]        | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools for Agents in Theia AI and the AI-powered Theia IDE          |
+| [VS Code GitHub Copilot][VS Code]           | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools, roots, dynamic discovery, secure secret configuration, and one-click installation |
 | [Windsurf Editor][Windsurf]                 | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools with AI Flow for collaborative development.                  |
 | [Witsy][Witsy]                              | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools in Witsy.                                                    |
 | [Zed][Zed]                                  | ❌          | ✅        | ❌      | ❌         | ❌    | Prompts appear as slash commands                                            |
@@ -62,6 +66,7 @@ This page provides an overview of applications that support the Model Context Pr
 [Goose]: https://block.github.io/goose/docs/goose-architecture/#interoperability-with-extensions
 [Witsy]: https://github.com/nbonamy/witsy
 [Windsurf]: https://codeium.com/windsurf
+[CopilotMCP]: https://github.com/VikashLoomba/copilot-mcp
 [Daydreams]: https://github.com/daydreamsai/daydreams
 [SpinAI]: https://spinai.dev
 [OpenSumi]: https://github.com/opensumi/core
@@ -71,6 +76,7 @@ This page provides an overview of applications that support the Model Context Pr
 [Tools]: https://modelcontextprotocol.io/docs/concepts/tools
 [Sampling]: https://modelcontextprotocol.io/docs/concepts/sampling
 [Microsoft Copilot Studio]: https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp
+[VS Code]: https://code.visualstudio.com/
 
 ## Client details
 
@@ -151,8 +157,8 @@ Claude Code is an interactive agentic coding tool from Anthropic that helps you 
 - Built in support for "Building Effective Agents" workflows.
 - Deploy Agents as MCP Servers
 
-### Firebase Genkit
-[Genkit](https://github.com/firebase/genkit) is Firebase's SDK for building and integrating GenAI features into applications. The [genkitx-mcp](https://github.com/firebase/genkit/tree/main/js/plugins/mcp) plugin enables consuming MCP servers as a client or creating MCP servers from Genkit tools and prompts.
+### Genkit
+[Genkit](https://github.com/firebase/genkit) is a cross-language SDK for building and integrating GenAI features into applications. The [genkitx-mcp](https://github.com/firebase/genkit/tree/main/js/plugins/mcp) plugin enables consuming MCP servers as a client or creating MCP servers from Genkit tools and prompts.
 
 **Key features:**
 - Client support for tools and prompts (resources partially supported)
@@ -270,6 +276,16 @@ Theia AI and Theia IDE's MCP integration provide users with flexibility, making 
 **Learn more:**
 - [Theia IDE and Theia AI MCP Announcement](https://eclipsesource.com/blogs/2024/12/19/theia-ide-and-theia-ai-support-mcp/)
 - [Download the AI-powered Theia IDE](https://theia-ide.org/)
+
+### VS Code GitHub Copilot
+[VS Code](https://code.visualstudio.com/) integrates MCP with GitHub Copilot through [agent mode](https://code.visualstudio.com/docs/copilot/chat/chat-agent-mode), allowing direct interaction with MCP-provided tools within your agentic coding workflow. Configure servers in Claude Desktop, workspace or user settings, with guided MCP installation and secure handling of keys in input variables to avoid leaking hard-coded keys.
+
+**Key features:**
+- Support for stdio and server-sent events (SSE) transport
+- Per-session selection of tools per agent session for optimal performance
+- Easy server debugging with restart commands and output logging
+- Tool calls with editable inputs and always-allow toggle
+- Integration with existing VS Code extension system to register MCP servers from extensions
 
 ### Windsurf Editor
 [Windsurf Editor](https://codeium.com/windsurf) is an agentic IDE that combines AI assistance with developer workflows. It features an innovative AI Flow system that enables both collaborative and independent AI interactions while maintaining developer control.
