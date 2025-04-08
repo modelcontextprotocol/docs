@@ -7,7 +7,7 @@ In this tutorial, we'll build a simple MCP weather server and connect it to a ho
 
 ### What we'll be building
 
-Many LLMs (including Claude) do not currently have the ability to fetch the forecast and severe weather alerts. Let's use MCP to solve that!
+Many LLMs do not currently have the ability to fetch the forecast and severe weather alerts. Let's use MCP to solve that!
 
 We'll build a server that exposes two tools: `get-alerts` and `get-forecast`. Then we'll connect the server to an MCP host (in this case, Claude for Desktop):
 
@@ -433,6 +433,10 @@ const USER_AGENT = "weather-app/1.0";
 const server = new McpServer({
   name: "weather",
   version: "1.0.0",
+  capabilities: {
+    resources: {},
+    tools: {},
+  },
 });
 ```
 
@@ -761,7 +765,7 @@ For manual MCP Server implementation, refer to the [MCP Server Java SDK document
 
 ### Set up your environment
 
-Use the [Spring Initizer](https://start.spring.io/) to bootstrat the project.
+Use the [Spring Initializer](https://start.spring.io/) to bootstrap the project.
 
 You will need to add the following dependencies:
 
@@ -771,7 +775,7 @@ You will need to add the following dependencies:
   <dependencies>
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-mcp-server-spring-boot-starter</artifactId>
+            <artifactId>spring-ai-starter-mcp-server</artifactId>
         </dependency>
 
         <dependency>
@@ -784,14 +788,14 @@ You will need to add the following dependencies:
   <Tab title="Gradle">
   ```groovy
   dependencies {
-    implementation platform("org.springframework.ai:spring-ai-mcp-server-spring-boot-starter")
+    implementation platform("org.springframework.ai:spring-ai-starter-mcp-server")
     implementation platform("org.springframework:spring-web")   
   }
   ```
   </Tab>
 </Tabs>
 
-Then configure your application by setting the applicaiton properties:
+Then configure your application by setting the application properties:
 
 <CodeGroup>
 
@@ -818,7 +822,7 @@ Now let's dive into building your server.
 
 ### Weather Service
 
-Let's implement a [WeatheService.java](https://github.com/spring-projects/spring-ai-examples/blob/main/model-context-protocol/weather/starter-stdio-server/src/main/java/org/springframework/ai/mcp/sample/server/WeatherService.java) that uses a REST client to query the data from the National Weather Service API:
+Let's implement a [WeatherService.java](https://github.com/spring-projects/spring-ai-examples/blob/main/model-context-protocol/weather/starter-stdio-server/src/main/java/org/springframework/ai/mcp/sample/server/WeatherService.java) that uses a REST client to query the data from the National Weather Service API:
 
 ```java
 @Service
@@ -847,7 +851,7 @@ public class WeatherService {
 	
   @Tool(description = "Get weather alerts for a US state")
   public String getAlerts(
-      @ToolParam(description = "Two-letter US state code (e.g. CA, NY") String state)
+      @ToolParam(description = "Two-letter US state code (e.g. CA, NY)" String state
   ) {
       // Returns active alerts including:
       // - Event type
@@ -861,12 +865,12 @@ public class WeatherService {
 }
 ```
 
-The `@Service` annotation with auto-register the service in your applicaiton context.
+The `@Service` annotation with auto-register the service in your application context.
 The Spring AI `@Tool` annotation, making it easy to create and maintain MCP tools.
 
 The auto-configuration will automatically register these tools with the MCP server. 
 
-### Create your Boot Applicaiton
+### Create your Boot Application
 
 ```java
 @SpringBootApplication
@@ -883,7 +887,7 @@ public class McpServerApplication {
 }
 ```
 
-Uses the the `MethodToolCallbackProvider` utils to convert the `@Tools` into actionalble callbackes used by the MCP server.
+Uses the the `MethodToolCallbackProvider` utils to convert the `@Tools` into actionable callbacks used by the MCP server.
 
 ### Running the server
 
@@ -1007,23 +1011,23 @@ mcpClient.closeGracefully();
 
 ### Use MCP Client Boot Starter
 
-Create a new boot starter applicaiton using the `spring-ai-mcp-client-spring-boot-starter` dependency:
+Create a new boot starter application using the `spring-ai-starter-mcp-client` dependency:
 
 ```xml
 <dependency>
     <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-mcp-client-spring-boot-starter</artifactId>
+    <artifactId>spring-ai-starter-mcp-client</artifactId>
 </dependency>
 ```
 
 and set the `spring.ai.mcp.client.stdio.servers-configuration` property to point to your `claude_desktop_config.json`.
-You can re-use the existing Anthropic Destop configuration:
+You can re-use the existing Anthropic Desktop configuration:
 
 ```properties
 spring.ai.mcp.client.stdio.servers-configuration=file:PATH/TO/claude_desktop_config.json
 ```
 
-When you stasrt your client applicaiton, the auto-configuration will create, automatically MCP clients from the claude_desktop_config.json.
+When you start your client application, the auto-configuration will create, automatically MCP clients from the claude_desktop_config.json.
 
 For more information, see the [MCP Client Boot Starters](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-server-boot-client-docs.html) reference documentation.
 
@@ -1031,6 +1035,589 @@ For more information, see the [MCP Client Boot Starters](https://docs.spring.io/
 
 The [starter-webflux-server](https://github.com/spring-projects/spring-ai-examples/tree/main/model-context-protocol/weather/starter-webflux-server) demonstrates how to create a MCP server using SSE transport. 
 It showcases how to define and register MCP Tools, Resources, and Prompts, using the Spring Boot's auto-configuration capabilities.
+
+</Tab>
+
+<Tab title='Kotlin'>
+Let's get started with building our weather server! [You can find the complete code for what we'll be building here.](https://github.com/modelcontextprotocol/kotlin-sdk/tree/main/samples/weather-stdio-server)
+
+### Prerequisite knowledge
+
+This quickstart assumes you have familiarity with:
+- Kotlin
+- LLMs like Claude
+
+### System requirements
+
+- Java 17 or higher installed.
+
+### Set up your environment
+
+First, let's install `java` and `gradle` if you haven't already.
+You can download `java` from [official Oracle JDK website](https://www.oracle.com/java/technologies/downloads/).
+Verify your `java` installation:
+```bash
+java --version
+```
+
+Now, let's create and set up your project:
+
+<CodeGroup>
+```bash MacOS/Linux
+# Create a new directory for our project
+mkdir weather
+cd weather
+
+# Initialize a new kotlin project
+gradle init
+```
+
+```powershell Windows
+# Create a new directory for our project
+md weather
+cd weather
+
+# Initialize a new kotlin project
+gradle init
+```
+</CodeGroup>
+
+After running `gradle init`, you will be presented with options for creating your project.
+Select **Application** as the project type, **Kotlin** as the programming language, and **Java 17** as the Java version.
+
+Alternatively, you can create a Kotlin application using the [IntelliJ IDEA project wizard](https://kotlinlang.org/docs/jvm-get-started.html).
+
+After creating the project, add the following dependencies:
+<CodeGroup>
+```kotlin build.gradle.kts
+val mcpVersion = "0.4.0"
+val slf4jVersion = "2.0.9"
+val ktorVersion = "3.1.1"
+
+dependencies {
+    implementation("io.modelcontextprotocol:kotlin-sdk:$mcpVersion")
+    implementation("org.slf4j:slf4j-nop:$slf4jVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+}
+```
+
+```groovy build.gradle
+def mcpVersion = '0.3.0'
+def slf4jVersion = '2.0.9'
+def ktorVersion = '3.1.1'
+
+dependencies {
+    implementation "io.modelcontextprotocol:kotlin-sdk:$mcpVersion"
+    implementation "org.slf4j:slf4j-nop:$slf4jVersion"
+    implementation "io.ktor:ktor-client-content-negotiation:$ktorVersion"
+    implementation "io.ktor:ktor-serialization-kotlinx-json:$ktorVersion"
+}
+```
+</CodeGroup>
+
+Also, add the following plugins to your build script:
+<CodeGroup>
+```kotlin build.gradle.kts
+plugins {
+    kotlin("plugin.serialization") version "your_version_of_kotlin"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+}
+```
+
+```groovy build.gradle
+plugins {
+    id 'org.jetbrains.kotlin.plugin.serialization' version 'your_version_of_kotlin'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+```
+</CodeGroup>
+
+Now let’s dive into building your server.
+
+## Building your server
+
+### Setting up the instance
+
+Add a server initialization function:
+
+```kotlin
+// Main function to run the MCP server
+fun `run mcp server`() {
+    // Create the MCP Server instance with a basic implementation
+    val server = Server(
+        Implementation(
+            name = "weather", // Tool name is "weather"
+            version = "1.0.0" // Version of the implementation
+        ),
+        ServerOptions(
+            capabilities = ServerCapabilities(tools = ServerCapabilities.Tools(listChanged = true))
+        )
+    )
+
+    // Create a transport using standard IO for server communication
+    val transport = StdioServerTransport(
+        System.`in`.asInput(),
+        System.out.asSink().buffered()
+    )
+
+    runBlocking {
+        server.connect(transport)
+        val done = Job()
+        server.onClose {
+            done.complete()
+        }
+        done.join()
+    }
+}
+```
+
+### Weather API helper functions
+
+Next, let's add functions and data classes for querying and converting responses from the National Weather Service API:
+
+```kotlin
+// Extension function to fetch forecast information for given latitude and longitude
+suspend fun HttpClient.getForecast(latitude: Double, longitude: Double): List<String> {
+    val points = this.get("/points/$latitude,$longitude").body<Points>()
+    val forecast = this.get(points.properties.forecast).body<Forecast>()
+    return forecast.properties.periods.map { period ->
+        """
+            ${period.name}:
+            Temperature: ${period.temperature} ${period.temperatureUnit}
+            Wind: ${period.windSpeed} ${period.windDirection}
+            Forecast: ${period.detailedForecast}
+        """.trimIndent()
+    }
+}
+
+// Extension function to fetch weather alerts for a given state
+suspend fun HttpClient.getAlerts(state: String): List<String> {
+    val alerts = this.get("/alerts/active/area/$state").body<Alert>()
+    return alerts.features.map { feature ->
+        """
+            Event: ${feature.properties.event}
+            Area: ${feature.properties.areaDesc}
+            Severity: ${feature.properties.severity}
+            Description: ${feature.properties.description}
+            Instruction: ${feature.properties.instruction}
+        """.trimIndent()
+    }
+}
+
+@Serializable
+data class Points(
+    val properties: Properties
+) {
+    @Serializable
+    data class Properties(val forecast: String)
+}
+
+@Serializable
+data class Forecast(
+    val properties: Properties
+) {
+    @Serializable
+    data class Properties(val periods: List<Period>)
+
+    @Serializable
+    data class Period(
+        val number: Int, val name: String, val startTime: String, val endTime: String,
+        val isDaytime: Boolean, val temperature: Int, val temperatureUnit: String,
+        val temperatureTrend: String, val probabilityOfPrecipitation: JsonObject,
+        val windSpeed: String, val windDirection: String,
+        val shortForecast: String, val detailedForecast: String,
+    )
+}
+
+@Serializable
+data class Alert(
+    val features: List<Feature>
+) {
+    @Serializable
+    data class Feature(
+        val properties: Properties
+    )
+
+    @Serializable
+    data class Properties(
+        val event: String, val areaDesc: String, val severity: String,
+        val description: String, val instruction: String?,
+    )
+}
+```
+
+### Implementing tool execution
+
+The tool execution handler is responsible for actually executing the logic of each tool. Let's add it:
+
+```kotlin
+// Create an HTTP client with a default request configuration and JSON content negotiation
+val httpClient = HttpClient {
+    defaultRequest {
+        url("https://api.weather.gov")
+        headers {
+            append("Accept", "application/geo+json")
+            append("User-Agent", "WeatherApiClient/1.0")
+        }
+        contentType(ContentType.Application.Json)
+    }
+    // Install content negotiation plugin for JSON serialization/deserialization
+    install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+}
+
+// Register a tool to fetch weather alerts by state
+server.addTool(
+    name = "get_alerts",
+    description = """
+        Get weather alerts for a US state. Input is Two-letter US state code (e.g. CA, NY)
+    """.trimIndent(),
+    inputSchema = Tool.Input(
+        properties = buildJsonObject {
+            putJsonObject("state") {
+                put("type", "string")
+                put("description", "Two-letter US state code (e.g. CA, NY)")
+            }
+        },
+        required = listOf("state")
+    )
+) { request ->
+    val state = request.arguments["state"]?.jsonPrimitive?.content
+    if (state == null) {
+        return@addTool CallToolResult(
+            content = listOf(TextContent("The 'state' parameter is required."))
+        )
+    }
+
+    val alerts = httpClient.getAlerts(state)
+
+    CallToolResult(content = alerts.map { TextContent(it) })
+}
+
+// Register a tool to fetch weather forecast by latitude and longitude
+server.addTool(
+    name = "get_forecast",
+    description = """
+        Get weather forecast for a specific latitude/longitude
+    """.trimIndent(),
+    inputSchema = Tool.Input(
+        properties = buildJsonObject {
+            putJsonObject("latitude") { put("type", "number") }
+            putJsonObject("longitude") { put("type", "number") }
+        },
+        required = listOf("latitude", "longitude")
+    )
+) { request ->
+    val latitude = request.arguments["latitude"]?.jsonPrimitive?.doubleOrNull
+    val longitude = request.arguments["longitude"]?.jsonPrimitive?.doubleOrNull
+    if (latitude == null || longitude == null) {
+        return@addTool CallToolResult(
+            content = listOf(TextContent("The 'latitude' and 'longitude' parameters are required."))
+        )
+    }
+
+    val forecast = httpClient.getForecast(latitude, longitude)
+
+    CallToolResult(content = forecast.map { TextContent(it) })
+}
+```
+
+### Running the server
+
+Finally, implement the main function to run the server:
+
+```kotlin
+fun main() = `run mcp server`()
+```
+
+Make sure to run `./gradlew build` to build your server. This is a very important step in getting your server to connect.
+
+Let's now test your server from an existing MCP host, Claude for Desktop.
+
+## Testing your server with Claude for Desktop
+
+<Note>
+Claude for Desktop is not yet available on Linux. Linux users can proceed to the [Building a client](/quickstart/client) tutorial to build an MCP client that connects to the server we just built.
+</Note>
+
+First, make sure you have Claude for Desktop installed. [You can install the latest version
+here.](https://claude.ai/download) If you already have Claude for Desktop, **make sure it's updated to the latest version.**
+
+We'll need to configure Claude for Desktop for whichever MCP servers you want to use.
+To do this, open your Claude for Desktop App configuration at `~/Library/Application Support/Claude/claude_desktop_config.json` in a text editor.
+Make sure to create the file if it doesn't exist.
+
+For example, if you have [VS Code](https://code.visualstudio.com/) installed:
+
+<CodeGroup>
+```bash MacOS/Linux
+code ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+
+```powershell Windows
+code $env:AppData\Claude\claude_desktop_config.json
+```
+</CodeGroup>
+
+You'll then add your servers in the `mcpServers` key.
+The MCP UI elements will only show up in Claude for Desktop if at least one server is properly configured.
+
+In this case, we'll add our single weather server like so:
+
+<CodeGroup>
+```json MacOS/Linux
+{
+    "mcpServers": {
+        "weather": {
+            "command": "java",
+            "args": [
+                "-jar",
+                "/ABSOLUTE/PATH/TO/PARENT/FOLDER/weather/build/libs/weather-0.1.0-all.jar"
+            ]
+        }
+    }
+}
+```
+
+```json Windows
+{
+    "mcpServers": {
+        "weather": {
+            "command": "java",
+            "args": [
+                "-jar",
+                "C:\\PATH\\TO\\PARENT\\FOLDER\\weather\\build\\libs\\weather-0.1.0-all.jar"
+            ]
+        }
+    }
+}
+```
+</CodeGroup>
+
+This tells Claude for Desktop:
+1. There's an MCP server named "weather"
+2. Launch it by running `java -jar /ABSOLUTE/PATH/TO/PARENT/FOLDER/weather/build/libs/weather-0.1.0-all.jar`
+
+Save the file, and restart **Claude for Desktop**.
+
+</Tab>
+
+<Tab title='C#'>
+Let's get started with building our weather server! [You can find the complete code for what we'll be building here.](https://github.com/modelcontextprotocol/csharp-sdk/tree/main/samples/QuickstartWeatherServer)
+
+### Prerequisite knowledge
+This quickstart assumes you have familiarity with:
+- C#
+- LLMs like Claude
+- .NET 8 or higher
+
+### System requirements
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or higher installed.
+
+### Set up your environment
+First, let's install `dotnet` if you haven't already. You can download `dotnet` from [official Microsoft .NET website](https://dotnet.microsoft.com/download/). Verify your `dotnet` installation:
+```bash
+dotnet --version
+```
+Now, let's create and set up your project:
+<CodeGroup>
+```bash MacOS/Linux
+# Create a new directory for our project
+mkdir weather
+cd weather
+# Initialize a new C# project
+dotnet new console
+```
+
+```powershell Windows
+# Create a new directory for our project
+mkdir weather
+cd weather
+# Initialize a new C# project
+dotnet new console
+```
+</CodeGroup>
+After running `dotnet new console`, you will be presented with a new C# project.
+You can open the project in your favorite IDE, such as [Visual Studio](https://visualstudio.microsoft.com/) or [Rider](https://www.jetbrains.com/rider/).
+Alternatively, you can create a C# application using the [Visual Studio project wizard](https://learn.microsoft.com/en-us/visualstudio/get-started/csharp/tutorial-console?view=vs-2022).
+After creating the project, add NuGet package for the Model Context Protocol SDK and hosting:
+
+```bash
+# Add the Model Context Protocol SDK NuGet package
+dotnet add package ModelContextProtocol --prerelease
+# Add the .NET Hosting NuGet package
+dotnet add package Microsoft.Extensions.Hosting
+```
+Now let’s dive into building your server.
+
+## Building your server
+
+Open the `Program.cs` file in your project and replace its contents with the following code:
+
+```csharp
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using ModelContextProtocol;
+using System.Net.Http.Headers;
+
+var builder = Host.CreateEmptyApplicationBuilder(settings: null);
+
+builder.Services.AddMcpServer()
+    .WithStdioServerTransport()
+    .WithToolsFromAssembly();
+
+builder.Services.AddSingleton(_ =>
+{
+    var client = new HttpClient() { BaseAddress = new Uri("https://api.weather.gov") };
+    client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("weather-tool", "1.0"));
+    return client;
+});
+
+var app = builder.Build();
+
+await app.RunAsync();
+```
+<Note>
+When creating the `ApplicationHostBuilder`, ensure you use `CreateEmptyApplicationBuilder` instead of `CreateDefaultBuilder`. This ensures that the server does not write any additional messages to the console. This is only neccessary for servers using STDIO transport.
+</Note>
+
+This code sets up a basic console application that uses the Model Context Protocol SDK to create an MCP server with standard I/O transport.
+
+### Weather API helper functions
+Next, define a class with the tool execution handlers for querying and converting responses from the National Weather Service API:
+
+```csharp
+using ModelContextProtocol.Server;
+using System.ComponentModel;
+using System.Net.Http.Json;
+using System.Text.Json;
+
+namespace QuickstartWeatherServer.Tools;
+
+[McpServerToolType]
+public static class WeatherTools
+{
+    [McpServerTool, Description("Get weather alerts for a US state.")]
+    public static async Task<string> GetAlerts(
+        HttpClient client,
+        [Description("The US state to get alerts for.")] string state)
+    {
+        var jsonElement = await client.GetFromJsonAsync<JsonElement>($"/alerts/active/area/{state}");
+        var alerts = jsonElement.GetProperty("features").EnumerateArray();
+
+        if (!alerts.Any())
+        {
+            return "No active alerts for this state.";
+        }
+
+        return string.Join("\n--\n", alerts.Select(alert =>
+        {
+            JsonElement properties = alert.GetProperty("properties");
+            return $"""
+                    Event: {properties.GetProperty("event").GetString()}
+                    Area: {properties.GetProperty("areaDesc").GetString()}
+                    Severity: {properties.GetProperty("severity").GetString()}
+                    Description: {properties.GetProperty("description").GetString()}
+                    Instruction: {properties.GetProperty("instruction").GetString()}
+                    """;
+        }));
+    }
+
+    [McpServerTool, Description("Get weather forecast for a location.")]
+    public static async Task<string> GetForecast(
+        HttpClient client,
+        [Description("Latitude of the location.")] double latitude,
+        [Description("Longitude of the location.")] double longitude)
+    {
+        var jsonElement = await client.GetFromJsonAsync<JsonElement>($"/points/{latitude},{longitude}");
+        var periods = jsonElement.GetProperty("properties").GetProperty("periods").EnumerateArray();
+
+        return string.Join("\n---\n", periods.Select(period => $"""
+                {period.GetProperty("name").GetString()}
+                Temperature: {period.GetProperty("temperature").GetInt32()}°F
+                Wind: {period.GetProperty("windSpeed").GetString()} {period.GetProperty("windDirection").GetString()}
+                Forecast: {period.GetProperty("detailedForecast").GetString()}
+                """));
+    }
+}
+```
+
+### Running the server
+Finally, run the server using the following command:
+
+```bash
+dotnet run
+```
+This will start the server and listen for incoming requests on standard input/output.
+
+## Testing your server with Claude for Desktop
+<Note>
+Claude for Desktop is not yet available on Linux. Linux users can proceed to the [Building a client](/quickstart/client) tutorial to build an MCP client that connects to the server we just built.
+</Note>
+
+First, make sure you have Claude for Desktop installed. [You can install the latest version
+here.](https://claude.ai/download) If you already have Claude for Desktop, **make sure it's updated to the latest version.**
+We'll need to configure Claude for Desktop for whichever MCP servers you want to use. To do this, open your Claude for Desktop App configuration at `~/Library/Application Support/Claude/claude_desktop_config.json` in a text editor. Make sure to create the file if it doesn't exist.
+For example, if you have [VS Code](https://code.visualstudio.com/) installed:
+<Tabs>
+<Tab title="MacOS/Linux">
+```bash
+code ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+</Tab>
+<Tab title="Windows">
+```powershell
+code $env:AppData\Claude\claude_desktop_config.json
+```
+</Tab>
+</Tabs>
+
+You'll then add your servers in the `mcpServers` key. The MCP UI elements will only show up in Claude for Desktop if at least one server is properly configured.
+In this case, we'll add our single weather server like so:
+
+<Tabs>
+<Tab title="MacOS/Linux">
+```json
+{
+    "mcpServers": {
+        "weather": {
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "/ABSOLUTE/PATH/TO/PROJECT",
+                "--no-build"
+            ]
+        }
+    }
+}
+```
+
+</Tab>
+
+<Tab title="Windows">
+```json
+{
+    "mcpServers": {
+        "weather": {
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "C:\\ABSOLUTE\\PATH\\TO\\PROJECT",
+                "--no-build"
+            ]
+        }
+    }
+}
+```
+</Tab>
+</Tabs>
+
+This tells Claude for Desktop:
+1. There's an MCP server named "weather"
+2. Launch it by running `dotnet run /ABSOLUTE/PATH/TO/PROJECT`
+Save the file, and restart **Claude for Desktop**.
 
 </Tab>
 </Tabs>

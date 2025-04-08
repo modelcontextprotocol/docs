@@ -15,6 +15,12 @@ The MCP Client is a key component in the Model Context Protocol (MCP) architectu
 - Prompt system interactions
 - Optional features like roots management and sampling support
 
+<Tip>
+The core `io.modelcontextprotocol.sdk:mcp` module provides STDIO and SSE client transport implementations  without requiring external web frameworks. 
+
+Spring-specific transport implementations are available as an **optional** dependency `io.modelcontextprotocol.sdk:mcp-spring-webflux` for [Spring Framework](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-client-boot-starter-docs.html) users.
+</Tip>
+
 The client provides both synchronous and asynchronous APIs for flexibility in different application contexts.
 
 <Tabs>
@@ -182,7 +188,6 @@ The roots capability allows servers to:
 - Receive notifications when the roots list changes
 - Understand which directories and files they have access to
 
-
 ### Sampling Support
 
 Sampling enables servers to request LLM interactions ("completions" or "generations") through the client:
@@ -208,7 +213,6 @@ This capability allows:
 - Clients to maintain control over model access and permissions
 - Support for both text and image-based interactions
 - Optional inclusion of MCP server context in prompts
-
 
 ## Using MCP Clients
 
@@ -320,3 +324,4 @@ client.executePrompt("echo", Map.of(
 ```
   </Tab>
 </Tabs>
+
