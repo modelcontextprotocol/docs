@@ -98,6 +98,11 @@
           "icon": "square-k"
         },
         {
+          "anchor": "C# SDK",
+          "href": "https://github.com/modelcontextprotocol/csharp-sdk",
+          "icon": "square-c"
+        },
+        {
           "anchor": "Specification",
           "href": "https://spec.modelcontextprotocol.io",
           "icon": "book"

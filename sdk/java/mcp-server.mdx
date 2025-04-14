@@ -4,8 +4,8 @@ description: Learn how to implement and configure a Model Context Protocol (MCP)
 ---
 
 <Note>
-### Breaking Changes in 0.8.0 ⚠️
-**Note:** Version 0.8.0 introduces several breaking changes including a new session-based architecture. 
+### Breaking Changes in 0.8.x ⚠️
+**Note:** Version 0.8.x introduces several breaking changes including a new session-based architecture. 
 If you're upgrading from 0.7.0, please refer to the [Migration Guide](https://github.com/modelcontextprotocol/java-sdk/blob/main/migration-0.8.0.md) for detailed instructions.
 </Note>
 
@@ -21,10 +21,12 @@ The MCP Server is a foundational component in the Model Context Protocol (MCP) a
 - Managing concurrent client connections
 - Providing structured logging and notifications
 
-<Tip> 
-The [Spring-AI MCP Server](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-server-boot-starter-docs.html) integration extends the MCP Java SDK to 
-provide auto-configuration for MCP servdr functionality in Spring Boot applications.
+<Tip>
+The core `io.modelcontextprotocol.sdk:mcp` module provides STDIO and SSE server transport implementations  without requiring external web frameworks. 
+
+Spring-specific transport implementations are available as an **optional** dependencies `io.modelcontextprotocol.sdk:mcp-spring-webflux`, `io.modelcontextprotocol.sdk:mcp-spring-webmvc` for [Spring Framework](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-client-boot-starter-docs.html) users.
 </Tip>
+
 
 The server supports both synchronous and asynchronous APIs, allowing for flexible integration in different application contexts.
 
@@ -246,7 +248,7 @@ var capabilities = ServerCapabilities.builder()
     .resources(false, true)  // Resource support with list changes notifications
     .tools(true)            // Tool support with list changes notifications
     .prompts(true)          // Prompt support with list changes notifications
-    .logging()              // Enable logging support (enabled by default with loging level INFO)
+    .logging()              // Enable logging support (enabled by default with logging level INFO)
     .build();
 ```
 
@@ -293,7 +295,7 @@ var schema = """
               }
             }
             """;
-var syncToolSpecification = new McpServerFeatures.SyncToolSpecificaiton(
+var syncToolSpecification = new McpServerFeatures.SyncToolSpecification(
     new Tool("calculator", "Basic calculator", schema),
     (exchange, arguments) -> {
         // Tool implementation
@@ -323,7 +325,7 @@ var schema = """
               }
             }
             """;
-var asyncToolSpecification = new McpServerFeatures.AsyncToolSpecificaiton(
+var asyncToolSpecification = new McpServerFeatures.AsyncToolSpecification(
     new Tool("calculator", "Basic calculator", schema),
     (exchange, arguments) -> {
         // Tool implementation
@@ -371,7 +373,7 @@ var asyncResourceSpecification = new McpServerFeatures.asyncResourceSpecificatio
   </Tab>
 </Tabs>
 
-The resource specification compriese of resource definitions and resource read handler.
+The resource specification comprised of resource definitions and resource read handler.
 The resource definition including `name`, `description`, and `MIME type`.
 The first argument of the function that handles resource read requests is an `McpAsyncServerExchange` upon which the server can
 interact with the connected client. 
@@ -445,7 +447,8 @@ var calculatorTool = new McpServerFeatures.SyncToolSpecification(
         
         // Create a sampling request
         McpSchema.CreateMessageRequest request = McpSchema.CreateMessageRequest.builder()
-            .content(new McpSchema.TextContent("Calculate: " + arguments.get("expression")))
+            .messages(List.of(new McpSchema.SamplingMessage(McpSchema.Role.USER,
+                new McpSchema.TextContent("Calculate: " + arguments.get("expression")))
             .modelPreferences(McpSchema.ModelPreferences.builder()
                 .hints(List.of(
                     McpSchema.ModelHint.of("claude-3-sonnet"),
@@ -490,14 +493,11 @@ var calculatorTool = new McpServerFeatures.AsyncToolSpecification(
         
         // Create a sampling request
         McpSchema.CreateMessageRequest request = McpSchema.CreateMessageRequest.builder()
-            .content(McpSchema.Content.builder()
-                .type("text")
-                .text("Calculate: " + arguments.get("expression"))
-                .build())
+            .content(new McpSchema.TextContent("Calculate: " + arguments.get("expression")))
             .modelPreferences(McpSchema.ModelPreferences.builder()
                 .hints(List.of(
-                    McpSchema.ModelHint.builder().name("claude-3-sonnet").build(),
-                    McpSchema.ModelHint.builder().name("claude").build()
+                    McpSchema.ModelHint.of("claude-3-sonnet"),
+                    McpSchema.ModelHint.of("claude")
                 ))
                 .intelligencePriority(0.8)  // Prioritize intelligence
                 .speedPriority(0.5)         // Moderate speed importance
@@ -524,26 +524,9 @@ server.addTool(calculatorTool)
 </Tabs>
 
 The `CreateMessageRequest` object allows you to specify: `Content` - the input text or image for the model, 
-`Model Preferences` - hints and priorities for model selection, `System Prompt` - instructions for the model's behavior and `Max Tokens` - maximum length of the generated response
+`Model Preferences` - hints and priorities for model selection, `System Prompt` - instructions for the model's behavior and 
+`Max Tokens` - maximum length of the generated response.
 
-```java
-McpSchema.CreateMessageRequest request = McpSchema.CreateMessageRequest.builder()
-    .content(McpSchema.Content.builder()
-        .type("text")
-        .text("What is the capital of France?")
-        .build())
-    .modelPreferences(McpSchema.ModelPreferences.builder()
-        .hints(List.of(
-            McpSchema.ModelHint.builder().name("claude-3-sonnet").build(),
-            McpSchema.ModelHint.builder().name("claude").build()
-        ))
-        .intelligencePriority(0.8)
-        .speedPriority(0.5)
-        .build())
-    .systemPrompt("You are a helpful assistant.")
-    .maxTokens(100)
-    .build();
-```
 
 ## Error Handling
 

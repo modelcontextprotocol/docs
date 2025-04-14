@@ -1,9 +1,5 @@
-# Model Context Protocol Documentation
+# Model Context Protocol documentation
 
-The official documentation for the [Model Context Protocol](https://modelcontextprotocol.io).
+**This documentation has moved to [modelcontextprotocol/modelcontextprotocol](https://github.com/modelcontextprotocol/modelcontextprotocol/tree/main/docs).**
 
-For detailed contribution guidelines, development setup, and troubleshooting, please see our [Contributing Guide](CONTRIBUTING.md).
-
-### Publishing Changes
-
-Changes will be deployed to production automatically after pushing to the default branch.
+Please file issues and pull requests for documentation changes there.
