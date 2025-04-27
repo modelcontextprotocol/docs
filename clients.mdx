@@ -24,7 +24,8 @@ This page provides an overview of applications that support the Model Context Pr
 | [Goose][Goose]                              | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools.                                                             |
 | [LibreChat][LibreChat]                      | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools for Agents                                                   |
 | [mcp-agent][mcp-agent]                      | ❌          | ❌        | ✅      | ⚠️         | ❌    | Supports tools, server connection management, and agent workflows.          |
-| [Microsoft Copilot Studio]         | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools                                                              |
+| [Microsoft Copilot Studio]         | ❌          | ❌        | ✅      | ❌         | ❌    | Supports tools for agents and workflows.                                                              |
+| [Nerve][Nerve]         | ❌          | ✅        | ✅      | ❌         | ❌    | Supports tools                                                              |
 | [oterm][oterm]                              | ❌          | ✅        | ✅      | ❌         | ❌    | Supports tools and prompts.                                                 |
 | [Roo Code][Roo Code]                        | ✅          | ❌        | ✅      | ❌         | ❌    | Supports tools and resources.                                               |
 | [Sourcegraph Cody][Cody]                    | ✅          | ❌        | ❌      | ❌         | ❌    | Supports resources through OpenCTX                                          |
@@ -66,6 +67,7 @@ This page provides an overview of applications that support the Model Context Pr
 [CopilotMCP]: https://github.com/VikashLoomba/copilot-mcp
 [Daydreams]: https://github.com/daydreamsai/daydreams
 [SpinAI]: https://spinai.dev
+[Nerve]: https://github.com/evilsocket/nerve
 [OpenSumi]: https://github.com/opensumi/core
 [oterm]: https://github.com/ggozad/oterm
 [Resources]: https://modelcontextprotocol.io/docs/concepts/resources
@@ -205,6 +207,17 @@ Programmatically assemble prompts for LLMs using [GenAIScript](https://microsoft
 - Support for MCP tools
 - Extend Copilot Studio agents with MCP servers
 - Leveraging Microsoft unified, governed, and secure API management solutions 
+
+### Nerve
+
+[Nerve] is a powerful open-source Agent Development Kit designed for building, evaluating, and chaining intelligent agents using simple YAML workflows or advanced Python code. It empowers developers to create transparent, inspectable, and extensible AI agents with ease.
+
+**Key features**
+
+-	YAML-based agent definitions
+- Supports any LLM
+- Fully integrated with MCP
+- Simple CLI for creating, installing, and running agents with step-by-step guidance.
 
 ### oterm
 [oterm] is a terminal client for Ollama allowing users to create chats/agents.
