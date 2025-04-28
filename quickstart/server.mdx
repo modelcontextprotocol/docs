@@ -1658,12 +1658,13 @@ Since this is the US National Weather service, the queries will only work for US
 
 When you ask a question:
 
-1. The client sends your question to Claude
-2. Claude analyzes the available tools and decides which one(s) to use
-3. The client executes the chosen tool(s) through the MCP server
-4. The results are sent back to Claude
-5. Claude formulates a natural language response
-6. The response is displayed to you!
+1. The client gets the list of available tools from the server
+2. Your question is sent to Claude along with tool descriptions
+3. Claude analyzes the available tools and decides which one(s)(if any) to use
+4. The client executes the chosen tool(s) through the MCP server
+5. The results are sent back to Claude
+6. Claude formulates a natural language response
+7. The response is displayed to you
 
 ## Troubleshooting
 
